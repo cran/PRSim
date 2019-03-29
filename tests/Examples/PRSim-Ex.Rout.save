@@ -1,0 +1,145 @@
+
+R Under development (unstable) (2019-03-24 r76263) -- "Unsuffered Consequences"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "PRSim"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('PRSim')
+Loading required package: homtest
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("PRSim-package")
+> ### * PRSim-package
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: PRSim-package
+> ### Title: Stochastic Simulation of Streamflow Time Series using Phase
+> ###   Randomization
+> ### Aliases: PRSim-package PRSim
+> ### Keywords: package
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D demo("PRSim")
+> ##D demo("PRSim-validate")
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("fun_stoch_sim")
+> ### * fun_stoch_sim
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: pRsim
+> ### Title: Simulate for one station
+> ### Aliases: PRsim prsim
+> ### Keywords: ts
+> 
+> ### ** Examples
+> 
+> data( runoff)
+> out <- prsim( runoff[ runoff$YYYY<1980, ], "Qobs", 1, suppWarn=TRUE)
+Detrending with (half-)length 15...
+Starting 1 simulations:
+.
+Finished.
+> # warnings() # as a follow-up to `suppWarn=TRUE`
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("runoff")
+> ### * runoff
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: runoff
+> ### Title: Sample runoff of a catchment
+> ### Aliases: runoff
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(runoff)
+> str(runoff) 
+'data.frame':	15706 obs. of  4 variables:
+ $ YYYY: int  1975 1975 1975 1975 1975 1975 1975 1975 1975 1975 ...
+ $ MM  : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ DD  : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ Qobs: num  2.05 1.75 1.62 1.58 1.47 ...
+> runoff$timestamp <- paste(runoff$YYYY, runoff$MM, runoff$DD, sep=" ")
+> runoff$timestamp <- as.POSIXct(strptime(runoff$timestamp,
++                                  format="%Y %m %d", tz="GMT"))
+> plot(runoff$timestamp[1:1000], runoff$Qobs[1:1000], type="l", 
++   xlab="Time [d]", ylab=expression(paste("Discharge [m"^3,"/s]")))
+> 
+> 
+> 
+> cleanEx()
+> nameEx("simulations")
+> ### * simulations
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: simulations
+> ### Title: Simulated runoff
+> ### Aliases: simulations
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(simulations)
+> names(simulations) 
+[1] "simulation" "kappa_pars" "p_val"     
+> sim <- simulations$simulation
+> dim(sim)
+[1] 6570   56
+> sim$day_id <- rep(seq(1:365), times=length(unique(sim$YYYY)))
+> mean_obs <- aggregate(sim$Qobs, by=list(sim$day_id), FUN=mean, simplify=FALSE)
+> plot(unlist(mean_obs[,2]),lty=1,lwd=1,col="black", ylab="Discharge [m3/s]",
++      xlab="Time [d]", main="Mean hydrographs", ylim=c(0,22), type="l")
+> 
+> for(r in 7:(length(names(sim))-1)){
++   mean_hydrograph <- aggregate(sim[,r], by=list(sim$day_id), FUN=mean, simplify=FALSE)
++   lines(mean_hydrograph, lty=1, lwd=1, col="gray")
++ }
+> lines( mean_obs, lty=1, lwd=1, col="black")
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  1.34 0.032 1.377 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

@@ -1,0 +1,4 @@
+importFrom("homtest", "Lmoments", "rand.kappa", "par.kappa")
+importFrom("stats", "rnorm", "runif", "fft", "ks.test")
+
+export("prsim")
