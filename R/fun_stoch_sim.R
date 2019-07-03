@@ -1,9 +1,23 @@
-prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
-				 verbose=TRUE, kappapar=TRUE, suppWarn=FALSE, KStest=FALSE){
+prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15, 
+        marginal=c("kappa","empirical"), n_par=4, marginalpar=TRUE, 
+        GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, ...) {  
 
-	ifft <- function (x) fft(x, inverse = TRUE)/length(x)
+  ifft <- function (x) fft(x, inverse = TRUE)/length(x)
 	
-	if (verbose) cat(paste0("Detrending with (half-)length ",win_h_length,"...\n"))
+	## start preparing arguments.
+	if (!is.null(GoFtest)) {
+	  GoFtest <- toupper(GoFtest)[1]
+	  if (!(GoFtest %in% c("AD","KS"))) stop("'GoFtest' should be either 'NULL', 'AD' or 'KS'.")
+	} else  GoFtest <- "NULL"
+	
+	
+	marginal <- marginal[1]    # take only the first element
+	if (!(marginal %in% c("kappa","empirical"))) {   # check if distributions exist
+	  if (!is.character(marginal)) stop("'marginal' should be a character string.")
+	  rCDF <- get(paste0("r",marginal), mode = "function")
+	  CDF_fit <- get(paste0(marginal,"_fit"), mode = "function")
+	  if (GoFtest=="AD")	  pCDF <- get(paste0("p",marginal), mode = "function")
+	}
 	
 	op <- options("warn")$warn
 	### input data needs to be of the format year (four digits), month (two digits), day (one digit), input discharge time series
@@ -21,22 +35,23 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
 	                     DD=as.integer(format(data[,1],'%d')),
 	                     Qobs=data[,station_id],
 	                     timestamp=data[,1])
-	}else {
-	  if(!all(c("YYYY","MM","DD") %in% colnames(data))) stop("Wrong time column names")
+	} else {
+     if(!all(c("YYYY","MM","DD") %in% colnames(data))) stop("Wrong time column names")
 
-	 data <- data[,c("YYYY","MM","DD", station_id)]
-	 tmp <- paste(data$YYYY,data$MM,data$DD,sep=" ")
-	 names(data) <- c("YYYY","MM","DD","Qobs")
-	 data$timestamp <- as.POSIXct(strptime(tmp, format="%Y %m %d", tz="GMT"))
-	      
+	   data <- data[,c("YYYY","MM","DD", station_id)]
+	   tmp <- paste(data$YYYY,data$MM,data$DD,sep=" ")
+	   names(data) <- c("YYYY","MM","DD","Qobs")
+	   data$timestamp <- as.POSIXct(strptime(tmp, format="%Y %m %d", tz="GMT"))
 	}
-
   
   ### remove February 29
   data <- data[format(data$timestamp, "%m %d") != "02 29",]
   
   if ((nrow( data) %% 365)>0) stop("No missing values allowed. Some days are missing.")
- 
+
+  
+	if (verbose) cat(paste0("Detrending with (half-)length ",win_h_length,"...\n"))  
+   
   # ### a) Detrend
   # plot(data$Qobs[1:1000])
   # # data$smooth <- loess(c(1:length(data$Qobs))~data$Qobs,span=0.0001)$y
@@ -79,76 +94,117 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
   ### daily fitting of Kappa distribution
   ### fit the parameters of the Kappa distribution for each day separately.
   ### To enable a sufficient sample size by using daily values in moving window around day i (i.e., reduce uncertainty due to fitting)
-    ### try Kappa distribution
-    p_vals <- numeric(365) 
-    kap_par_day <- matrix(0, nrow=365, ncol=4)
-    density_kap <- list()
-          ### define window length  
-    win_length <- c(1:win_h_length)
-    for(d in c(1:365)){
-      ### define start and end of window
-      before <- data$index[d+365-win_length]
-      after <- data$index[d+365+win_length-1]
-      ### define days within window
-      ids <- c(before, after)
-      ### determine values in window around day i
-      data_window <- data$Qobs[which(data$index%in%ids)]
-      # par.kappa(data_monthly)
-      ll<- Lmoments(data_window)
-      
-      ### test whether Kappa distribution can be fit
-      if (suppWarn) {
-        suppressWarnings( test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5])) )
-      } else {
-        test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]))
-      }
-      
-      if(length(test)>1){
-        kap_par <- test
-        kap_par_day[d,] <- unlist(kap_par)
-        ### define vector of quantiles
-        quant <- sort(data_window)
-        thresh <- kap_par$xi + kap_par$alfa*(1 - kap_par$h^(-kap_par$k))/kap_par$k
-        if(!is.na(thresh)){
-  ##        min(quant)>thresh
-          ### only use quantiles larger than threshold (as in f.kappa function documentation)
-          quant <- quant[which(quant>thresh)]
+    if(marginal=="kappa"){
+      p_vals <- numeric(365) 
+      par_day <- matrix(0, nrow=365, ncol=4)
+      # density_kap <- list()
+            ### define window length  
+      win_length <- c(1:win_h_length)
+      for(d in c(1:365)){
+        ### define start and end of window
+        before <- data$index[d+365-win_length]
+        after <- data$index[d+365+win_length-1]
+        ### define days within window
+        ids <- c(before, after)
+        ### determine values in window around day i
+        data_window <- data$Qobs[which(data$index%in%ids)]
+        # par.kappa(data_monthly)
+        ll<- Lmoments(data_window)
+        
+        ### test whether Kappa distribution can be fit
+        if (suppWarn) {
+          suppressWarnings( test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]), silent = TRUE) )
+        } else {
+          test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]), silent = TRUE)
         }
-        # kappa_density <- f.kappa(x=quant,xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h)
-        # plot(kappa_density)
-        data_kap <- rand.kappa(length(data_window), xi=kap_par$xi,alfa=kap_par$alfa, k=kap_par$k, h=kap_par$h)
- #       density_kap[[d]] <- density(data_kap)
- #       hist(data_window)
- #       hist(data_kap,add=T,col="red")
-        if (KStest)
-         p_vals[d] <- ks.test(data_window, data_kap)$p.value ### kappa distribution not rejected at alpha=0.05
-      } else{
-        if(d==1){
-          p_vals[d] <- NA
-          kap_par_day[d,] <- NA
-        }else{
-          p_vals[d] <- p_vals[d-1]
-          kap_par_day[d,] <- kap_par_day[d-1,]
-        }
-      }
-    }
+        
+        if(length(test)>1){
+          kap_par <- test
+          par_day[d,] <- unlist(kap_par)
+          ### define vector of quantiles
+          quant <- sort(data_window)
+          thresh <- kap_par$xi + kap_par$alfa*(1 - kap_par$h^(-kap_par$k))/kap_par$k
+          if(!is.na(thresh)){
+    ##        min(quant)>thresh
+            ### only use quantiles larger than threshold (as in f.kappa function documentation)
+            quant <- quant[which(quant>thresh)]
+          }
+          # kappa_density <- f.kappa(x=quant,xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h)
+          # plot(kappa_density)
+          data_kap <- rand.kappa(length(data_window), xi=kap_par$xi,alfa=kap_par$alfa, k=kap_par$k, h=kap_par$h)
+   #       density_kap[[d]] <- density(data_kap)
+   #       hist(data_window)
+   #       hist(data_kap,add=T,col="red")
 
-    ###qu: check if subsequent NAs work properly.    
-    ### replace NA entries by values of subsequent day
-    if(length(which(is.na(kap_par_day[,1])))>0){
-      indices <- rev(which(is.na(kap_par_day[,1])))
-      for(i in 1:length(indices)){
-        kap_par_day[indices[i],] <- kap_par_day[indices[i]+1,]
+          if (tolower(GoFtest)=="ks")
+           p_vals[d] <- ks.test(data_window, data_kap)$p.value ### kappa distribution not rejected at alpha=0.05
+          if (tolower(GoFtest)=="ad") {
+            
+            try_ad_test <- try(ad.test(data_window,F.kappa,xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h), silent=TRUE) 
+            if(length(try_ad_test)==1){
+              p_vals[d]  <- NA
+            }else{
+              p_vals[d]  <- try_ad_test$p.value
+            }
+          }
+        } else{
+          if(d==1){
+            p_vals[d] <- NA
+            par_day[d,] <- NA
+          }else{
+            p_vals[d] <- p_vals[d-1]
+            par_day[d,] <- par_day[d-1,]
+          }
+        }
+      }
+  
+      ###qu: check if subsequent NAs work properly.    
+      ### replace NA entries by values of subsequent day
+      if(length(which(is.na(par_day[,1])))>0){
+        indices <- rev(which(is.na(par_day[,1])))
+        for(i in 1:length(indices)){
+          par_day[indices[i],] <- par_day[indices[i]+1,]
+        }
       }
     }
    
 #    which(unlist(p_val_list)<0.05) ### non-rejected for most days, difficulty with winter months (relation to hp production?)
   
- 
+  ### use either a predefined distribution in R or define own function
+  if(marginal!="kappa" & marginal!="empirical"){
+    p_vals <- numeric(365) 
+    par_day <- matrix(0, nrow=365, ncol=n_par)
+    for(d in c(1:365)){
+      ### define window length
+      win_length <- seq(1:15)
+      ### define start and end of window
+      before <- data$index[d+365-win_length]
+      after <- data$index[d+365+win_length-1]
+      ### define days within window
+      ids <- c(before,after)
+      ### determine values in window around day i
+      data_window <- data$Qobs[which(data$index%in%ids)]
+      theta <-  CDF_fit(xdat=data_window, ...)
+
+      ### goodness of fit test
+      data_random <- rCDF(n=length(data_window), theta)
+      
+      # density_gengam[[d]] <- density(data_gengam)
+      hist(data_window)
+      hist(data_random,add=T,col="red")
+      if (tolower(GoFtest)=="ks"){
+        p_vals[d] <- ks.test(data_window,data_random)$p.value 
+      }
+      if (tolower(GoFtest)=="ad"){
+        p_vals[d] <-  ad.test(data_window,pCDF,theta)$p.value
+      }
+      ### store parameters
+      par_day[d,] <- theta
+    } 
+  }
   ### Deseasonalization was not found to be necessary. Use normalized data directly.
     data$des <- data$norm
-  # }
-  
+
   
   ### 3) compute fast Fourier transform
   ft <- fft(data$des)
@@ -167,6 +223,7 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
   ### repeat stochastic simulation several times
   ### list for storing results
   data_sim <- list()
+
   if(verbose) cat(paste0("Starting ",number_sim," simulations:\n"))
   for (r in 1:number_sim){
     ### random generation of new phase sequence.
@@ -232,48 +289,86 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
 
     ### e) backtransform from normal to actual distribution
     ### apply daily backtransformation
-    colnames( kap_par_day) <- names(kap_par)
-    data_new$simulated_seasonal <- NA
-    for(d in c(1:365)){    
-      #   ### use empirical distribution for backtransformation
-      data_day <- data[which(data$index%in%c(d)),]
-      #   data_month$rank <- rank(data_month$Qobs)
-      #   data_new$rank[which(data$MM%in%c(m))] <- rank(data_new[which(data$MM%in%c(m)),]$seasonal)
-      #   ### derive corresponding values from the empirical distribution
-      #   ### identify value corresponding to rank in the original time series
-      #   data_ordered <- data_month[order(data_month$rank),]
-      #   data_new$simulated_seasonal[which(data_new$MM%in%c(m))] <- data_ordered$Qobs[data_new$rank[which(data$MM%in%c(m))]]
-      # }
-      # if(marginal=="kappa"){
-        ### use monthly Kappa distribution for backtransformation
-        ### simulate random sample of size n from Kappa disribution
-        data_day$kappa <- rand.kappa(length(data_day$Qobs),
-            xi=kap_par_day[d,"xi"],alfa=kap_par_day[d,"alfa"],
-            k=kap_par_day[d,"k"],h=kap_par_day[d,"h"])
-      # }
-      # if(marginal=="wakeby"){
-      #   ### use Wakeby distribution for backtrasformation
-      #   ### simulate random sample of size n from Wakeby distribution
-      #   data_day$kappa <- rlmomco(length(data_day$Qobs),wak_par_day[[d]])
-      # }
-      
-      data_day$rank <- rank(data_day$kappa)
-      
-      ##QUESTION: had to recopy the line here: possibly more not needed below..
-      data_new$rank <- rank(data_new$seasonal)
-      data_new$rank[ which(data$index%in%c(d)) ] <- rank(data_new[ which(data$index%in%c(d)), ]$seasonal)
-      ### derive corresponding values from the kappa distribution
-      ### identify value corresponding to rank in the kappa time series
-      data_ordered <- data_day[order(data_day$rank),]
-      data_new$simulated_seasonal[which(data_new$index%in%c(d))] <- data_ordered$kappa[data_new$rank[which(data$index%in%c(d))]]
-      ### if error was applied, replace negative values by 0 values
-      ### in any case, replace negative values by 0. Corresponds to a bounded Kappa distribution
-      # if(error==TRUE){
-      if(length(which(data_new$simulated_seasonal<0))>0){
-              data_new$simulated_seasonal[which(data_new$simulated_seasonal<0)] <- 0
-      } 
-      # }
-    }
+        data_new$simulated_seasonal <- NA
+
+      for(d in c(1:365)){    
+
+        data_day <- data[which(data$index%in%c(d)),]
+        #   data_month$rank <- rank(data_month$Qobs)
+        #   data_new$rank[which(data$MM%in%c(m))] <- rank(data_new[which(data$MM%in%c(m)),]$seasonal)
+        #   ### derive corresponding values from the empirical distribution
+        #   ### identify value corresponding to rank in the original time series
+        #   data_ordered <- data_month[order(data_month$rank),]
+        #   data_new$simulated_seasonal[which(data_new$MM%in%c(m))] <- data_ordered$Qobs[data_new$rank[which(data$MM%in%c(m))]]
+        
+        ### use kappa distribution for backtransformation
+        if(marginal=="kappa"){
+          colnames(par_day) <- names(kap_par)
+
+          ### use monthly Kappa distribution for backtransformation
+          ### simulate random sample of size n from Kappa disribution
+          data_day$kappa <- rand.kappa(length(data_day$Qobs),
+              xi=par_day[d,"xi"],alfa=par_day[d,"alfa"],
+              k=par_day[d,"k"],h=par_day[d,"h"])
+         
+        # if(marginal=="wakeby"){
+        #   ### use Wakeby distribution for backtrasformation
+        #   ### simulate random sample of size n from Wakeby distribution
+        #   data_day$kappa <- rlmomco(length(data_day$Qobs),wak_par_day[[d]])
+        #}
+        
+        data_day$rank <- rank(data_day$kappa)
+        
+        ##QUESTION: had to recopy the line here: possibly more not needed below..
+        data_new$rank <- rank(data_new$seasonal)
+        data_new$rank[ which(data$index%in%c(d)) ] <- rank(data_new[ which(data$index%in%c(d)), ]$seasonal)
+        ### derive corresponding values from the kappa distribution
+        ### identify value corresponding to rank in the kappa time series
+        data_ordered <- data_day[order(data_day$rank),]
+        data_new$simulated_seasonal[which(data_new$index%in%c(d))] <- data_ordered$kappa[data_new$rank[which(data$index%in%c(d))]]
+        ### if error was applied, replace negative values by 0 values
+        ### in any case, replace negative values by 0. Corresponds to a bounded Kappa distribution
+        
+        if(length(which(data_new$simulated_seasonal<0))>0){
+          ### do not use 0 as a replacement value directly
+                # data_new$simulated_seasonal[which(data_new$simulated_seasonal<0)] <- 0
+          ### sample value from a uniform distribution limited by 0 and the minimum observed value
+          ### determine replacement value
+          rep_value <- runif(n=1,min=0,max=min(data_day$Qobs))
+          data_new$simulated_seasonal[which(data_new$simulated_seasonal<0)]<-rep_value
+        } 
+      }
+        ### use empirical distribution for backtransformation
+        if(marginal=="empirical"){
+          data_day$rank <- rank(data_day$Qobs)
+          data_new$rank <- rank(data_new$seasonal)
+          data_new$rank[which(data$index%in%c(d))] <- rank(data_new[which(data$index%in%c(d)),]$seasonal)
+          ### derive corresponding values from the empirical distribution
+          ### identify value corresponding to rank in the original time series
+          data_ordered <- data_day[order(data_day$rank),]
+          data_new$simulated_seasonal[which(data_new$index%in%c(d))] <- data_ordered$Qobs[data_new$rank[which(data$index%in%c(d))]]
+          # }
+        }
+        
+        ### use any predefined distribution for backtransformation
+        if(marginal!="kappa" & marginal!="empirical"){
+          ### use monthly distribution for backtransformation
+          ### simulate random sample of size n from disribution
+          data_day$cdf <-   rCDF(n=length(data_day$Qobs), par_day[d,])
+          data_day$rank <- rank(data_day$cdf)
+          
+          data_new$rank <- rank(data_new$seasonal)
+          
+          # hist(data_day$Qobs)
+          # hist(data_day$cdf,add=T,col="blue")
+          # data_day$rank <- rank(data_day$cdf)
+          data_new$rank[which(data$index%in%c(d))] <- rank(data_new[which(data$index%in%c(d)),]$seasonal)
+          ### derive corresponding values from the kappa distribution
+          ### identify value corresponding to rank in the kappa time series
+          data_ordered <- data_day[order(data_day$rank),]
+          data_new$simulated_seasonal[which(data_new$index%in%c(d))] <- data_ordered$cdf[data_new$rank[which(data$index%in%c(d))]]
+        }
+    }  # end for loop
     data_sim[[r]] <- data_new$simulated_seasonal
     
     if(verbose) cat(".")
@@ -288,13 +383,17 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
                           deseaonalized=data$des,
                           data_sim)
 
-  if (!KStest) {  
+  if (GoFtest=="NULL") {  
     p_vals <- NULL 
   }
   
-  if (kappapar) {  # also return intermediate results
-     return(list( simulation=data_stoch, kappa_pars=kap_par_day, p_val=p_vals))
-  } else {
-  	 return(list( simulation=data_stoch, kappa_pars=NULL, p_val=p_vals)) 
+  if(marginal != "empirical"){
+    if (marginalpar) {  # also return intermediate results
+       return(list( simulation=data_stoch, pars=par_day, p_val=p_vals))
+    } else {
+    	 return(list( simulation=data_stoch, pars=NULL, p_val=p_vals)) 
+    }
+  }else{
+    return(list(simulation=data_stoch) )
   }
 }

@@ -1,11 +1,13 @@
 
-R Under development (unstable) (2019-03-24 r76263) -- "Unsuffered Consequences"
+R version 3.6.0 (2019-04-26) -- "Planting of a Tree"
 Copyright (C) 2019 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
 
 R is a collaborative project with many contributors.
 Type 'contributors()' for more information and
@@ -20,6 +22,7 @@ Type 'q()' to quit R.
 > options(warn = 1)
 > library('PRSim')
 Loading required package: homtest
+Loading required package: goftest
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
@@ -65,10 +68,48 @@ Starting 1 simulations:
 Finished.
 > # warnings() # as a follow-up to `suppWarn=TRUE`
 > 
+> ## Specifying particular CDFs:
+> ## (1) example with the Generalized Extreme Value (GEV) distribution
+> require("evd")
+Loading required package: evd
+> require("ismev")
+Loading required package: ismev
+Loading required package: mgcv
+Loading required package: nlme
+This is mgcv 1.8-28. For overview type 'help("mgcv-package")'.
+> rGEV <- function(n, theta)   rgev(n, theta[1], theta[2], theta[3])
+> pGEV <- function(x, theta)   pgev(x, theta[1], theta[2], theta[3])
+> GEV_fit <- function( xdat, ...)   gev.fit( xdat, ...)$mle
+>   
+> ## Not run: 
+> ##D  # The following call requires 5 seconds to execute
+> ##D out <- prsim( runoff[ runoff$YYYY<1978, ], "Qobs", 1, 
+> ##D     marginal="GEV", n_par=3, verbose=FALSE, marginalpar=FALSE,
+> ##D     show=FALSE)  # Supress 'gev.fit' output.
+> ## End(Not run)
+> 
+> ## (2) example with generalized Beta distribution of the second kind
+> require( "GB2")
+Loading required package: GB2
+> rGB2 <- function(n, theta)  rgb2(n, theta[1], theta[2], theta[3], theta[4])
+> pGB2 <- function(x, theta)  pgb2(x, theta[1], theta[2], theta[3], theta[4])
+> GB2_fit <- function( xdat, ...)   ml.gb2( xdat, ...)$opt1$par
+> 
+> ## Not run: 
+> ##D  # The following call requires half minute or so to execute. Some warnings are issued
+> ##D out <- prsim( runoff[ runoff$YYYY<1987, ], "Qobs", 1, suppWarn=TRUE,
+> ##D     marginal="GB2")
+> ##D 
+> ## End(Not run)
+> 
 > 
 > 
 > 
 > cleanEx()
+
+detaching ‘package:GB2’, ‘package:ismev’, ‘package:mgcv’,
+  ‘package:nlme’, ‘package:evd’
+
 > nameEx("runoff")
 > ### * runoff
 > 
@@ -133,7 +174,7 @@ Finished.
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  1.34 0.032 1.377 0 0 
+Time elapsed:  2.156 0.072 2.227 0 0 
 > grDevices::dev.off()
 null device 
           1 
