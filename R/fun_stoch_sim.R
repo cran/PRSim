@@ -190,8 +190,8 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
       data_random <- rCDF(n=length(data_window), theta)
       
       # density_gengam[[d]] <- density(data_gengam)
-      hist(data_window)
-      hist(data_random,add=T,col="red")
+      # hist(data_window)
+      # hist(data_random,add=T,col="red")
       if (tolower(GoFtest)=="ks"){
         p_vals[d] <- ks.test(data_window,data_random)$p.value 
       }
