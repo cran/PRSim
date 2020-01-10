@@ -9,3 +9,6 @@ importFrom('wmtsa', 'wavCWT')
 
 export("prsim")
 export("prsim.wave")
+
+
+useDynLib(PRSim, .registration = TRUE)

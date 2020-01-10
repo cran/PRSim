@@ -137,7 +137,8 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
    #       hist(data_kap,add=T,col="red")
 
           if (tolower(GoFtest)=="ks")
-           p_vals[d] <- ks.test(data_window, data_kap)$p.value ### kappa distribution not rejected at alpha=0.05
+          p_vals[d] <- ks_test(data_window, data_kap) ### kappa distribution not rejected at alpha=0.05
+          # p_vals[d] <- ks.test(data_window, data_kap)$p.value ### kappa distribution not rejected at alpha=0.05
           if (tolower(GoFtest)=="ad") {
             
             try_ad_test <- try(ad.test(data_window,F.kappa,xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h), silent=TRUE) 
@@ -193,7 +194,8 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
       # hist(data_window)
       # hist(data_random,add=T,col="red")
       if (tolower(GoFtest)=="ks"){
-        p_vals[d] <- ks.test(data_window,data_random)$p.value 
+        p_vals[d] <- ks_test(data_window,data_random)
+#        p_vals[d] <- ks.test(data_window,data_random)$p.value 
       }
       if (tolower(GoFtest)=="ad"){
         p_vals[d] <-  ad.test(data_window,pCDF,theta)$p.value

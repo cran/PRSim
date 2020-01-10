@@ -58,6 +58,7 @@ data( runoff)
 out <- prsim( runoff[ runoff$YYYY<1980, ], "Qobs", 1, suppWarn=TRUE)
 # warnings() # as a follow-up to `suppWarn=TRUE`
 
+
 ## Specifying particular CDFs:
 ## (1) example with the Generalized Extreme Value (GEV) distribution
 require("evd")
