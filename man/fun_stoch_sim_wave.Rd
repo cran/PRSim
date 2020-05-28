@@ -46,8 +46,7 @@ When using the kappa distribution, the AD test can for certain values of the par
  \item{p_val}{A vector containing the p-values of \code{ks.test} or \code{ad.test} applied to the daily detrended data (if \code{GoFtest} is not NULL)}
 }
 \references{
-Brunner and Gilleland to be submitted
-}
+Brunner, M. I., and E. Gilleland (2020), Stochastic simulation of streamflow and spatial extremes: a continuous, wavelet-based approach, Hydrology and Earth System Sciences Discussion, https://doi.org/10.5194/hess-2019-658, in review, 2020.}
 \author{
 Manuela Brunner
 }

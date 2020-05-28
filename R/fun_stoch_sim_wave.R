@@ -5,6 +5,176 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
                   marginal=c("kappa","empirical"), n_par=4, n_wave=100, marginalpar=TRUE, 
                   GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, ...){  
   
+  # ### checkVectorType function originally implemented by package ifultools, which has recently been orphaned
+  # checkVectorType <- function (x, isType = "numeric") 
+  # {
+  #   checkScalarType(isType, "character")
+  #   if (isType == "integer") {
+  #     if (!isVectorAtomic(x) || !is.numeric(x)) 
+  #       stop(deparseText(substitute(x)), " must be a vector of class ", 
+  #            isType)
+  #   }
+  #   else {
+  #     if (!isVectorAtomic(x) || !eval(parse(text = paste("is.", 
+  #                                                        isType, "(x)", sep = "")))) 
+  #       stop(deparseText(substitute(x)), " must be a vector of class ", 
+  #            isType)
+  #   }
+  #   invisible(NULL)
+  # }
+  # ### other functions also required from ifultools
+  # checkScalarType <- function (x, isType = "numeric") 
+  # {
+  #   if (!is.character(isType)) 
+  #     stop("isType must be an object of class character")
+  #   if (isType == "integer") {
+  #     if (!is.numeric(x) || length(x) > 1) 
+  #       stop(deparseText(substitute(x)), " must be scalar of class ", 
+  #            isType)
+  #   }
+  #   else {
+  #     if (!eval(parse(text = paste("is.", isType, "(x)", 
+  #                                  sep = ""))) || length(x) > 1) 
+  #       stop(deparseText(substitute(x)), " must be scalar of class ", 
+  #            isType)
+  #   }
+  #   invisible(NULL)
+  # }
+  # 
+  # ### 
+  # isVectorAtomic <- function (x) 
+  #   return(is.atomic(x) & any(c(NROW(x), NCOL(x)) == 1))
+  # ### 
+  # deparseText <- function (expr, maxchars = 30) 
+  # {
+  #   full <- paste(deparse(expr), collapse = " ")
+  #   if (nchar(full) > maxchars) 
+  #     paste(substring(full, 1, maxchars - 4), "....", 
+  #           sep = "")
+  #   else full
+  # }
+  # ### checkRange
+  # checkRange <- function (x, range. = 0:1, inclusion = c(TRUE, TRUE)) 
+  # {
+  #   checkVectorType(range., "numeric")
+  #   if (length(range.) != 2) 
+  #     stop("Range input must contain two elements")
+  #   range. <- sort(range.)
+  #   checkVectorType(inclusion, "logical")
+  #   inclusion <- ifelse1(length(inclusion) == 1, rep(inclusion, 
+  #                                                    2), inclusion[1:2])
+  #   xrange <- range(x)
+  #   left <- ifelse1(inclusion[1], xrange[1] >= range.[1], xrange[1] > 
+  #                     range.[1])
+  #   right <- ifelse1(inclusion[2], xrange[2] <= range.[2], xrange[2] < 
+  #                      range.[2])
+  #   if (!(left && right)) 
+  #     stop("Range of x not on specified interval")
+  #   invisible(NULL)
+  # }
+  # ### 
+  # lowerCase <- function (x) 
+  #   casefold(x, upper = FALSE)
+  # ### 
+  # mutilsFilterTypeContinuous <- function (x) 
+  # {
+  #   x <- match.arg(lowerCase(x), c("haar", "gauss1", 
+  #                                  "gauss2", "gaussian1", "gaussian2", 
+  #                                  "sombrero", "mexican hat", "morlet"))
+  #   filter <- switch(x, haar = 7, gauss1 = 4, gaussian1 = 4, 
+  #                    gaussian2 = 5, gauss2 = 5, sombrero = 5, `mexican hat` = 5, 
+  #                    morlet = 6, NULL)
+  #   as.integer(filter)
+  # }
+  # ### 
+  # itCall <- function (symbol, ...) 
+  # {
+  #   args <- list(...)
+  #   CLASSES <- as.character(sapply(args, function(x) class(x)[1L]))
+  #   COPY <- rep(FALSE, length(args))
+  #   .Call(symbol, ..., COPY = COPY, CLASSES = CLASSES, PACKAGE = "ifultools")
+  # }
+  # ### see github: https://github.com/cran/ifultools/blob/master/src/RS_wav_xform.c
+  # 
+  # ### continuous wavelet transform as implemented by package wmtsa, which has recently been orphaned
+  # wavCWT <- function (x, scale.range = deltat(x) * c(1, length(x)), n.scale = 100,
+  #                     wavelet = "morlet", shift = 5, variance = 1)
+  # {
+  #   # checkVectorType(scale.range, "numeric")
+  #   # checkScalarType(n.scale, "integer")
+  #   # checkScalarType(wavelet, "character")
+  #   # checkScalarType(shift, "numeric")
+  #   # checkScalarType(variance, "numeric")
+  #   # checkRange(n.scale, c(1, Inf))
+  #   series.name <- deparse(substitute(x))
+  #   if (length(scale.range) != 2)
+  #     stop("scale.range must be a two-element numeric vector")
+  #   if (variance <= 0)
+  #     stop("variance input must be positive")
+  #   sampling.interval <- deltat(x)
+  #   ### can i use this in cwt?
+  #   scale.range = deltat(x) * c(1, length(x))
+  #   octave <- logb(scale.range, 2)
+  #   scale <- ifelse1(n.scale > 1, 2^c(octave[1] + seq(0, n.scale -
+  #                                                       2) * diff(octave)/(floor(n.scale) - 1), octave[2]), scale.range[1])
+  #   scale <- unique(round(scale/sampling.interval) * sampling.interval)
+  #   n.scale <- length(scale)
+  #   if (min(scale) + .Machine$double.eps < sampling.interval)
+  #     stop("Minimum scale must be greater than or equal to sampling interval ",
+  #          "of the time series")
+  #   if (inherits(x, "signalSeries")) {
+  #     times <- as(x@positions, "numeric")
+  #     x <- x@data
+  #   }
+  #   else {
+  #     times <- time(x)
+  #     x <- as.vector(x)
+  #   }
+  #   storage.mode(x) <- "double"
+  #   gauss1 <- c("gaussian1", "gauss1")
+  #   gauss2 <- c("gaussian2", "gauss2", "mexican hat",
+  #               "sombrero")
+  #   supported.wavelets <- c("haar", gauss1, gauss2, "morlet")
+  #   wavelet <- match.arg(lowerCase(wavelet), supported.wavelets)
+  #   filter <- mutilsFilterTypeContinuous(wavelet)
+  #   if (filter == 4) {
+  #     filter.arg <- sqrt(variance)
+  #     wavelet <- "gaussian1"
+  #   }
+  #   else if (filter == 5) {
+  #     filter.arg <- sqrt(variance)
+  #     wavelet <- "gaussian2"
+  #   }
+  #   else if (filter == 6) {
+  #     filter.arg <- shift
+  #     wavelet <- "morlet"
+  #   }
+  #   else if (filter == 7) {
+  #     filter.arg <- 0
+  #     wavelet <- "haar"
+  #     scale <- sampling.interval * unique(round(scale/sampling.interval))
+  #   }
+  #   else {
+  #     stop("Unsupported filter type")
+  #   }
+  #   z <- itCall("RS_wavelets_transform_continuous_wavelet",
+  #               as.numeric(x), as.numeric(sampling.interval), as.integer(filter),
+  #               as.numeric(filter.arg), as.numeric(scale))
+  #   if (wavelet != "morlet")
+  #     z <- Re(z)
+  #   attr(z, "scale") <- scale
+  #   attr(z, "time") <- as.vector(times)
+  #   attr(z, "wavelet") <- wavelet
+  #   attr(z, "series") <- x
+  #   attr(z, "sampling.interval") <- sampling.interval
+  #   attr(z, "series.name") <- series.name
+  #   attr(z, "n.sample") <- length(x)
+  #   attr(z, "n.scale") <- n.scale
+  #   attr(z, "filter.arg") <- filter.arg
+  #   oldClass(z) <- "wavCWT"
+  #   z
+  # }
+  
   ### function for backtransformation of continuous wavelet transform
   ### inverse wavelet transform
   ### x is the input matrix
@@ -96,8 +266,23 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
   noise_mat_r <- list()
   for (r in 1:number_sim){
     ts_wn <- rnorm(n=length(data[[1]]$Qobs), mean = 0, sd = 1) ### iid time seris
-    wt_noise <- wavCWT(x=ts_wn,wavelet="morlet",n.scale=n_wave)
-    noise_mat_r[[r]] <- as.matrix(wt_noise)
+    # wt_noise <- wavCWT(x=ts_wn,wavelet="morlet",n.scale=n_wave) ### needs to be replaced
+    # noise_mat_r[[r]] <- as.matrix(wt_noise)
+    ### test new potential functions  
+    # wt_noise <- WaveletTransform(ts_wn,dt=1,dj=1/10)
+    ### determine scale range
+    scale.range = deltat(data[[l]]$Qobs) * c(1, length(data[[l]]$Qobs))
+    ### sampling interval
+    sampling.interval <- 1
+    ### determine octave
+    octave <- logb(scale.range, 2)
+    ### determine wavelet scales
+    scale <- ifelse1(n_wave > 1, 2^c(octave[1] + seq(0, n_wave -
+                                                        2) * diff(octave)/(floor(n_wave) - 1), octave[2]), scale.range[1])
+    scale <- unique(round(scale/sampling.interval) * sampling.interval)
+    
+    wt_morlet <- cwt_wst(signal=ts_wn,scales=scale,wname='MORLET',makefigure=FALSE,dt=1,powerscales=FALSE)
+    noise_mat_r[[r]] <- as.matrix(wt_morlet$coefs)
   }
   
   ### fitting of kappa distribution to all stations for which simulations are to be derived  
@@ -277,15 +462,47 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
       
       ###===============================###===============================###
       ### i) use continuous wavelet transform (CWT) to wavelet transform the data
-      wt_morlet <- wavCWT(x=data[[l]]$norm,wavelet="morlet",n.scale=n_wave)
+      ### needs to be replaced as wmtsa was orphaned
+      # wt_morlet_old <- wavCWT(x=data[[l]]$norm,wavelet="morlet",n.scale=n_wave)
+      # 
+      # ### return CWT coefficients as a complex matrix with rows and columns representing times and scales, respectively.
+      # morlet_mat_old <- as.matrix(wt_morlet_old)
+      # ### derive modulus of complex numbers (radius)
+      # modulus <- Mod(morlet_mat_old)
+      # ### extract phases (argument)
+      # phases <- Arg(morlet_mat_old)
+      # 
+      # ### use the noise matrix corresponding to this run
+      # noise_mat <- noise_mat_r[[r]]
+      # phases_random <- Arg(noise_mat)
       
+      ### use alternative R-package instead
+      # wt_morlet <- WaveletTransform(x=data[[l]]$norm,dt=1,dj=1/8)
+      ### determine scale range
+      scale.range = deltat(data[[l]]$norm) * c(1, length(data[[l]]$norm))
+      ### sampling interval
+      sampling.interval <- 1
+      ### determine octave
+      octave <- logb(scale.range, 2)
+      ### determine wavelet scales
+      scale <- ifelse1(n_wave > 1, 2^c(octave[1] + seq(0, n_wave -
+                                                          2) * diff(octave)/(floor(n_wave) - 1), octave[2]), scale.range[1])
+      scale <- unique(round(scale/sampling.interval) * sampling.interval)
+      ### these scales correspond to the scales originall used in wavCWT()
+
+      ### apply continuous wavelet transform: use package wavScalogram
+      wt_morlet <- cwt_wst(signal=data[[l]]$norm,scales=scale,wname='MORLET',
+                           powerscales=FALSE,makefigure=FALSE,dt=1,wparam=5)
       ### return CWT coefficients as a complex matrix with rows and columns representing times and scales, respectively.
-      morlet_mat <- as.matrix(wt_morlet)
+      morlet_mat <- as.matrix(wt_morlet$coefs)
+
+      ### something is wrong with the scale of modulus
+      
       ### derive modulus of complex numbers (radius)
       modulus <- Mod(morlet_mat)
       ### extract phases (argument)
       phases <- Arg(morlet_mat)
-
+      
       ### use the noise matrix corresponding to this run
       noise_mat <- noise_mat_r[[r]]
       phases_random <- Arg(noise_mat)
@@ -317,7 +534,7 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
         
         # plot(data[[l]]$Qobs[1:2000],type="l")
         # lines(rec_random[1:1000],col=2)
-        # lines(rec_orig[1:1000]+mean(data[[l]]$Qobs),col='green')
+        # lines(rec_orig[1:1000],col='green')
         
         # plot(rec_random)
         # par(mfrow=c(1,2))

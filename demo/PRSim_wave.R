@@ -19,7 +19,7 @@ GEV_fit <- function( xdat, ...)   gev.fit( xdat, show=FALSE, ...)$mle
 
 
 ### GEV
-out <- prsim.wave(data=runoff_multi_sites, number_sim=1, marginal="GEV", GoFtest = "KS", n_par=3, out_dir=NA)
+out <- prsim.wave(data=runoff_multi_sites, number_sim=1, marginal="GEV", GoFtest = "KS", n_par=3)
 
 
 ### load stochastically simulated time series

@@ -26,7 +26,7 @@ The actual discharge data can be ordered from
 \url{http://www.bafu.admin.ch/wasser/13462/13494/15076/index}. 
 }
 \references{
-Brunner, Bardossy, Furrer (2019) Technical note: Stochastic simulation of streamflow time series using phase randomization. Submitted.
+Brunner, M. I., A. Bárdossy, and R. Furrer (2019). Technical note: Stochastic simulation of streamflow time series using phase randomization. Hydrology and Earth System Sciences, 23, 3175-3187, doi:10.5194/hess-23-3175-2019
 }
 \examples{
 data(runoff)

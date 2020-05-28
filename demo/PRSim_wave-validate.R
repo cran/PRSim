@@ -34,7 +34,7 @@ plot(sim[[1]]$Qobs[1:1000],ylab=expression(bold(paste("Specific discharge [mm/d]
 for(l in 2:4){
   lines(sim[[l]]$Qobs[1:1000],col=col_vect_obs[l])
 }
-legend('topleft',legend=c('Station 1','Station 2','Station 3','Station 4'),lty=1,col=col_vect_obs[1:4])
+# legend('topleft',legend=c('Station 1','Station 2','Station 3','Station 4'),lty=1,col=col_vect_obs[1:4])
 ### simulated (one run)
 plot(sim[[1]]$r1[1:1000],ylab=expression(bold(paste("Specific discharge [mm/d]"))),xlab="Time [d]",type="l",col=col_vect_sim[1],ylim=c(0,ylim_max),main='Stochastic simulations')
 for(l in 2:4){

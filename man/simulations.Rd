@@ -35,7 +35,7 @@ The data has been generated with
 (default values for all other arguments).
 }
 \references{
-Brunner, Bardossy, Furrer (2019) Technical note: Stochastic simulation of streamflow time series using phase randomization. Submitted.
+Brunner, M. I., A. Bárdossy, and R. Furrer (2019). Technical note: Stochastic simulation of streamflow time series using phase randomization. Hydrology and Earth System Sciences, 23, 3175-3187, doi:10.5194/hess-23-3175-2019
 }
 \examples{
 data(simulations)
