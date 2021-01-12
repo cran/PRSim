@@ -1,5 +1,5 @@
 # short demo
-data( simulations)
+data(simulations)
 
 sim <- simulations$simulation
 

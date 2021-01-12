@@ -6,13 +6,14 @@ importFrom('splus2R', 'ifelse1')
 importFrom("methods", "as")
 importFrom("stats", "deltat", "time")
 importFrom('wavScalogram', 'cwt_wst')
-importFrom('splus2R', 'ifelse1')
+importFrom('mev','fit.extgp','rextgp')
+importFrom('lmomco','lmoms','lmom2par','rlmomco')
 # importFrom("ismev","gev.fit")
 # importFrom("evd","rgev","pgev")
 # importFrom("GB2","mlfit.gb2","rgb2","pgb2")
 
 export("prsim")
 export("prsim.wave")
-
+export("prsim.weather")
 
 useDynLib(PRSim, .registration = TRUE)

@@ -26,7 +26,7 @@ The actual discharge data were downloaded from
 \url{https://waterdata.usgs.gov/nwis}.
 }
 \references{
-Brunner, M. I., and E. Gilleland (2020), Stochastic simulation of streamflow and spatial extremes: a continuous, wavelet-based approach, Hydrology and Earth System Sciences Discussion, https://doi.org/10.5194/hess-2019-658, in review, 2020.
+Brunner, M. I., A. Bárdossy, and R. Furrer (2019). Technical note: Stochastic simulation of streamflow time series using phase randomization. Hydrology and Earth System Sciences, 23, 3175-3187, https://doi.org/10.5194/hess-23-3175-2019.
 }
 \examples{
 data(runoff_multi_sites)

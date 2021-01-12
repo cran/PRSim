@@ -44,7 +44,7 @@ When using the kappa distribution, the AD test can for certain values of the par
  \item{p_val}{A vector containing the p-values of \code{ks.test} or \code{ad.test} applied to the daily detrended data (if \code{GoFtest} is not NULL)}
 }
 \references{
-Brunner, M. I., A. Bárdossy, and R. Furrer (2019). Technical note: Stochastic simulation of streamflow time series using phase randomization. Hydrology and Earth System Sciences, 23, 3175-3187, doi:10.5194/hess-23-3175-2019.
+Brunner, M. I., A. Bárdossy, and R. Furrer (2019). Technical note: Stochastic simulation of streamflow time series using phase randomization. Hydrology and Earth System Sciences, 23, 3175-3187, https://doi.org/10.5194/hess-23-3175-2019.
 }
 \author{
 Manuela Brunner
