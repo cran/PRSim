@@ -3,7 +3,7 @@ prsim <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
         GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, ...) {  
 
   ifft <- function (x) fft(x, inverse = TRUE)/length(x)
-	
+  
 	## start preparing arguments.
 	if (!is.null(GoFtest)) {
 	  GoFtest <- toupper(GoFtest)[1]

@@ -52,10 +52,10 @@ identical(out1,out5)
 
 ######################
 # Test 'kappa' distribution with manual construction:
-rKappa <- function(n, theta) rand.kappa(n, theta[1], theta[2], theta[3], theta[4])
+rKappa <- function(n, theta) homtest::rand.kappa(n, theta[1], theta[2], theta[3], theta[4])
 Kappa_fit <- function(xdat, ...) {
-  ll <- Lmoments(xdat)  
-  unlist(par.kappa(ll[1],ll[2],ll[4],ll[5]))
+  ll <- homtest::Lmoments(xdat)  
+  unlist(homtest::par.kappa(ll[1],ll[2],ll[4],ll[5]))
 }
 set.seed(1)
 out6a <- prsim( runo, marginalpar=TRUE)

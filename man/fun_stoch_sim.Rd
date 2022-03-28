@@ -54,7 +54,7 @@ Manuela Brunner
 \code{ks.test}
 }
 \examples{
-data( runoff)
+data(runoff)
 out <- prsim( runoff[ runoff$YYYY<1980, ], "Qobs", 1, suppWarn=TRUE)
 # warnings() # as a follow-up to `suppWarn=TRUE`
 

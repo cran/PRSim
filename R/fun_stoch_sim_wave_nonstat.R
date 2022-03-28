@@ -1,180 +1,23 @@
-# load("~/PRSim-devel/data/runoff_multi_sites.rda")
-# data<- runoff_multi_sites
+# load("~/PRSim-devel/data/runoff_multi_sites_nonstat.rda")
+# data<- runoff_multi_site_T
+# library('PRSim')
+# 
+# station_id="Qobs"
+# number_sim=1
+# win_h_length=15
+# marginal<- 'kappa'
+# n_par <- 4
+# n_wave <- 100
+# marginalpar=TRUE
+# GoFtest=NULL
+# verbose=TRUE
+# suppWarn=FALSE
+# cov_name <- 'T'
 
-prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15, 
-                  marginal=c("kappa","empirical"), n_par=4, n_wave=100, marginalpar=TRUE, 
+prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_length=15, 
+                  marginal=c("kappa","empirical"), n_par=4, n_wave=100, cov_name='T', marginalpar=TRUE, 
                   GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, ...){  
-  
-  # ### checkVectorType function originally implemented by package ifultools, which has recently been orphaned
-  # checkVectorType <- function (x, isType = "numeric") 
-  # {
-  #   checkScalarType(isType, "character")
-  #   if (isType == "integer") {
-  #     if (!isVectorAtomic(x) || !is.numeric(x)) 
-  #       stop(deparseText(substitute(x)), " must be a vector of class ", 
-  #            isType)
-  #   }
-  #   else {
-  #     if (!isVectorAtomic(x) || !eval(parse(text = paste("is.", 
-  #                                                        isType, "(x)", sep = "")))) 
-  #       stop(deparseText(substitute(x)), " must be a vector of class ", 
-  #            isType)
-  #   }
-  #   invisible(NULL)
-  # }
-  # ### other functions also required from ifultools
-  # checkScalarType <- function (x, isType = "numeric") 
-  # {
-  #   if (!is.character(isType)) 
-  #     stop("isType must be an object of class character")
-  #   if (isType == "integer") {
-  #     if (!is.numeric(x) || length(x) > 1) 
-  #       stop(deparseText(substitute(x)), " must be scalar of class ", 
-  #            isType)
-  #   }
-  #   else {
-  #     if (!eval(parse(text = paste("is.", isType, "(x)", 
-  #                                  sep = ""))) || length(x) > 1) 
-  #       stop(deparseText(substitute(x)), " must be scalar of class ", 
-  #            isType)
-  #   }
-  #   invisible(NULL)
-  # }
-  # 
-  # ### 
-  # isVectorAtomic <- function (x) 
-  #   return(is.atomic(x) & any(c(NROW(x), NCOL(x)) == 1))
-  # ### 
-  # deparseText <- function (expr, maxchars = 30) 
-  # {
-  #   full <- paste(deparse(expr), collapse = " ")
-  #   if (nchar(full) > maxchars) 
-  #     paste(substring(full, 1, maxchars - 4), "....", 
-  #           sep = "")
-  #   else full
-  # }
-  # ### checkRange
-  # checkRange <- function (x, range. = 0:1, inclusion = c(TRUE, TRUE)) 
-  # {
-  #   checkVectorType(range., "numeric")
-  #   if (length(range.) != 2) 
-  #     stop("Range input must contain two elements")
-  #   range. <- sort(range.)
-  #   checkVectorType(inclusion, "logical")
-  #   inclusion <- ifelse1(length(inclusion) == 1, rep(inclusion, 
-  #                                                    2), inclusion[1:2])
-  #   xrange <- range(x)
-  #   left <- ifelse1(inclusion[1], xrange[1] >= range.[1], xrange[1] > 
-  #                     range.[1])
-  #   right <- ifelse1(inclusion[2], xrange[2] <= range.[2], xrange[2] < 
-  #                      range.[2])
-  #   if (!(left && right)) 
-  #     stop("Range of x not on specified interval")
-  #   invisible(NULL)
-  # }
-  # ### 
-  # lowerCase <- function (x) 
-  #   casefold(x, upper = FALSE)
-  # ### 
-  # mutilsFilterTypeContinuous <- function (x) 
-  # {
-  #   x <- match.arg(lowerCase(x), c("haar", "gauss1", 
-  #                                  "gauss2", "gaussian1", "gaussian2", 
-  #                                  "sombrero", "mexican hat", "morlet"))
-  #   filter <- switch(x, haar = 7, gauss1 = 4, gaussian1 = 4, 
-  #                    gaussian2 = 5, gauss2 = 5, sombrero = 5, `mexican hat` = 5, 
-  #                    morlet = 6, NULL)
-  #   as.integer(filter)
-  # }
-  # ### 
-  # itCall <- function (symbol, ...) 
-  # {
-  #   args <- list(...)
-  #   CLASSES <- as.character(sapply(args, function(x) class(x)[1L]))
-  #   COPY <- rep(FALSE, length(args))
-  #   .Call(symbol, ..., COPY = COPY, CLASSES = CLASSES, PACKAGE = "ifultools")
-  # }
-  # ### see github: https://github.com/cran/ifultools/blob/master/src/RS_wav_xform.c
-  # 
-  # ### continuous wavelet transform as implemented by package wmtsa, which has recently been orphaned
-  # wavCWT <- function (x, scale.range = deltat(x) * c(1, length(x)), n.scale = 100,
-  #                     wavelet = "morlet", shift = 5, variance = 1)
-  # {
-  #   # checkVectorType(scale.range, "numeric")
-  #   # checkScalarType(n.scale, "integer")
-  #   # checkScalarType(wavelet, "character")
-  #   # checkScalarType(shift, "numeric")
-  #   # checkScalarType(variance, "numeric")
-  #   # checkRange(n.scale, c(1, Inf))
-  #   series.name <- deparse(substitute(x))
-  #   if (length(scale.range) != 2)
-  #     stop("scale.range must be a two-element numeric vector")
-  #   if (variance <= 0)
-  #     stop("variance input must be positive")
-  #   sampling.interval <- deltat(x)
-  #   ### can i use this in cwt?
-  #   scale.range = deltat(x) * c(1, length(x))
-  #   octave <- logb(scale.range, 2)
-  #   scale <- ifelse1(n.scale > 1, 2^c(octave[1] + seq(0, n.scale -
-  #                                                       2) * diff(octave)/(floor(n.scale) - 1), octave[2]), scale.range[1])
-  #   scale <- unique(round(scale/sampling.interval) * sampling.interval)
-  #   n.scale <- length(scale)
-  #   if (min(scale) + .Machine$double.eps < sampling.interval)
-  #     stop("Minimum scale must be greater than or equal to sampling interval ",
-  #          "of the time series")
-  #   if (inherits(x, "signalSeries")) {
-  #     times <- as(x@positions, "numeric")
-  #     x <- x@data
-  #   }
-  #   else {
-  #     times <- time(x)
-  #     x <- as.vector(x)
-  #   }
-  #   storage.mode(x) <- "double"
-  #   gauss1 <- c("gaussian1", "gauss1")
-  #   gauss2 <- c("gaussian2", "gauss2", "mexican hat",
-  #               "sombrero")
-  #   supported.wavelets <- c("haar", gauss1, gauss2, "morlet")
-  #   wavelet <- match.arg(lowerCase(wavelet), supported.wavelets)
-  #   filter <- mutilsFilterTypeContinuous(wavelet)
-  #   if (filter == 4) {
-  #     filter.arg <- sqrt(variance)
-  #     wavelet <- "gaussian1"
-  #   }
-  #   else if (filter == 5) {
-  #     filter.arg <- sqrt(variance)
-  #     wavelet <- "gaussian2"
-  #   }
-  #   else if (filter == 6) {
-  #     filter.arg <- shift
-  #     wavelet <- "morlet"
-  #   }
-  #   else if (filter == 7) {
-  #     filter.arg <- 0
-  #     wavelet <- "haar"
-  #     scale <- sampling.interval * unique(round(scale/sampling.interval))
-  #   }
-  #   else {
-  #     stop("Unsupported filter type")
-  #   }
-  #   z <- itCall("RS_wavelets_transform_continuous_wavelet",
-  #               as.numeric(x), as.numeric(sampling.interval), as.integer(filter),
-  #               as.numeric(filter.arg), as.numeric(scale))
-  #   if (wavelet != "morlet")
-  #     z <- Re(z)
-  #   attr(z, "scale") <- scale
-  #   attr(z, "time") <- as.vector(times)
-  #   attr(z, "wavelet") <- wavelet
-  #   attr(z, "series") <- x
-  #   attr(z, "sampling.interval") <- sampling.interval
-  #   attr(z, "series.name") <- series.name
-  #   attr(z, "n.sample") <- length(x)
-  #   attr(z, "n.scale") <- n.scale
-  #   attr(z, "filter.arg") <- filter.arg
-  #   oldClass(z) <- "wavCWT"
-  #   z
-  # }
-  
+
   ### function for backtransformation of continuous wavelet transform
   ### inverse wavelet transform
   ### x is the input matrix
@@ -225,13 +68,14 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
                          MM=as.integer(format(data[[l]][,1],'%m')),
                          DD=as.integer(format(data[[l]][,1],'%d')),
                          Qobs=data[[l]][,station_id],
+                         T=data[[l]][,cov_name],
                          timestamp=data[[l]][,1])
     } else {
       if(!all(c("YYYY","MM","DD") %in% colnames(data[[l]]))) stop("Wrong time column names")
       
-      data[[l]] <- data[[l]][,c("YYYY","MM","DD", station_id)]
+      data[[l]] <- data[[l]][,c("YYYY","MM","DD", station_id,'T')]
       tmp <- paste(data[[l]]$YYYY,data[[l]]$MM,data[[l]]$DD,sep=" ")
-      names(data[[l]]) <- c("YYYY","MM","DD","Qobs")
+      names(data[[l]]) <- c("YYYY","MM","DD","Qobs",cov_name)
       data[[l]]$timestamp <- as.POSIXct(strptime(tmp, format="%Y %m %d", tz="GMT"))
     }
     
@@ -299,8 +143,6 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
     ### fit the parameters of the Kappa distribution for each day separately.
     ### To enable a sufficient sample size by using daily values in moving window around day i (i.e., reduce uncertainty due to fitting)
     
-    ### TO RESOLVE
-    ### data[[l]]$index is somehow overwritten
     if(marginal=='empirical'){
       marginal_list[[l]]<-'empirical'
     }
@@ -318,34 +160,110 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
         ### define days within window
         ids <- c(before, after)
         ### determine values in window around day i
-        data_window <- data[[l]]$Qobs[which(data[[l]]$index%in%ids)]
+        data_window <- data[[l]][which(data[[l]]$index%in%ids),]
+        
         # par.kappa(data_monthly)
-        ll<- homtest::Lmoments(data_window)
+        ll<- homtest::Lmoments(data_window$Qobs)
         
-        ### test whether Kappa distribution can be fit
-        if (suppWarn) {
-          suppressWarnings( test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]), silent = TRUE) )
-        } else {
-          test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]), silent = TRUE)
-        }
         
-        if(length(test)>1){
-          kap_par <- test
-          par_day[d,] <- unlist(kap_par)
+          ###===============================###===============================###
+          ### Step 1: estimate mu (mean flow) using some sort of regression model (can be linear or more flexible)
+          ### using temperature as a covariate
+          ###===============================###===============================###
+          ### simplest case: linear model (maybe go for more sophisticated option later on)
+          plot(data_window$timestamp,data_window$Qobs,type='h',ylab='Discharge (m3/s)',xlab='Date (day)',main=paste('Day =',d,sep=''))
+          lm_T <- lm(Qobs~T,data=data_window)
+          Q_pred <- predict(lm_T,data_window)
+          lines(data_window$timestamp,Q_pred,col='grey')
+          ### use some sort of mean temperature as covariate, e.g. annual mean temperature
+          ### I want to predict overall Q trend not daily variations
+          # # annual_mean <- aggregate(data_window,by=list(format(data_window$Date,format='%Y')), FUN='mean')
+          # # plot(annual_mean$Qobs,annual_mean$P)
+          # # plot(annual_mean$T,annual_mean$Qobs,xlab='Temperature',ylab='Discharge')
+          # # abline(lm(annual_mean$Qobs~annual_mean$T)) ### increasing T -> increasing Q
+          # 
+          # ### linear model based on annual averages
+          # lm_T <- lm(Qobs~T,data=annual_mean)
+          # summary(lm_T)
+          # ### add P as additional covariate?
+          # lm_T_P <- lm(Qobs~T+P,data=annual_mean)
+          # summary(lm_T_P) ### much better fit
+          # Q_pred <- predict(lm_T_P,annual_mean)
+          # plot(annual_mean$Qobs,Q_pred)
+          # abline(0,1)
+          # ### residuals: look iid, good
+          # plot(annual_mean$Qobs-Q_pred)
+          ### now, use same model to predict daily values
+          # Q_pred <- predict(lm_T,newdata=data_window)
+          # # Q_pred <- predict(lm_T_P,newdata=data_window)
+          # plot(data_window$Date,data_window$Qobs,type='h',ylab='Discharge (m3/s)',xlab='Date (day)')
+          # lines(data_window$Date,Q_pred,col='grey')
+          
+          ### compute residuals: obs-pred
+          residuals <- data_window$Q-Q_pred
+          plot(residuals,type='l')
+          # hist(residuals)
+        
+          ### Step 2: fit kappa model to residuals, set mean to 0, because already removed
+          ###===============================###===============================###
+          ### fit kappa distribution and assess goodness-of-fit
+          ll<- homtest::Lmoments(na.omit(residuals))
+          
+          ### test whether Kappa distribution can be fit
+          if (suppWarn) {
+            suppressWarnings( test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]), silent = TRUE) )
+          } else {
+            test <- try(par.kappa(ll[1],ll[2],ll[4],ll[5]), silent = TRUE)
+          }
+          
+          ### fit non-stationary kappa distribution
+          if(length(test)>1){
+          ### determine parameter of kappa distribution
+          kap_par <- par.kappa(0,ll[2],ll[4],ll[5])
+      
           ### define vector of quantiles
-          quant <- sort(data_window)
+          quant <- sort(residuals)
           thresh <- kap_par$xi + kap_par$alfa*(1 - kap_par$h^(-kap_par$k))/kap_par$k
-          if(!is.na(thresh)){
-            ##        min(quant)>thresh
+          if(!is.na(thresh)|!is.nan(thresh)){
+            min(quant)>thresh
             ### only use quantiles larger than threshold (as in f.kappa function documentation)
             quant <- quant[which(quant>thresh)]
           }
           # kappa_density <- f.kappa(x=quant,xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h)
           # plot(kappa_density)
-          data_kap <- rand.kappa(length(data_window), xi=kap_par$xi,alfa=kap_par$alfa, k=kap_par$k, h=kap_par$h)
-          #       density_kap[[d]] <- density(data_kap)
-          #       hist(data_window)
-          #       hist(data_kap,add=T,col="red")
+          data_kap <- rand.kappa(length(na.omit(residuals)),xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h)
+          density_kap <- density(data_kap)
+          # hist(residuals,prob=TRUE)
+          # lines(density_kap,col="red")
+          p_val <- ks.test(residuals,data_kap)$p.value ### kappa distribution not rejected at alpha=0.05
+
+          ### QQ-plot
+          # plot(sort(residuals),sort(data_kap),xlab='Residuals',ylab='Residuals simulated with Kappa')
+          # abline(0,1)
+          
+          ### Step 3: simulate for period with changed t, by using the mu parameter estimated with model from Step 1, and combining it with distribution parameters from Step 2.
+          ###===============================###===============================###
+          ### predict mu using regression model from Step 1.
+          ### 1.5? warmer world
+          data_new <- data.frame('T'=c(mean(data_window$T)+1.5))
+          ### predict mu
+          pred_Q_new <- predict(lm_T,newdata=data_new)
+          ### use this predicted mu in kappa distribution
+          kap_par_ns <- par.kappa(pred_Q_new,ll[2],ll[4],ll[5])
+          data_kap_ns <- rand.kappa(length(data_window$Qobs),xi=kap_par$xi,alfa=kap_par$alfa,k=kap_par$k,h=kap_par$h)
+          density_kap <- density(data_kap_ns)
+          # hist(data_window$Qobs,prob=TRUE)
+          # lines(density_kap,col="red")
+          # hist(data_kap)
+          ### set negative values to 0
+          data_kap[which(data_kap<0)] <- 0
+          ### QQ-plot
+          plot(sort(data_window$Q),sort(data_kap),xlab='Observed discharge',ylab='Discharge simulated with non-stat Kappa')
+          abline(0,1)
+          
+          ### store parameters of the non-stationary kappa distribution
+          kap_par <- kap_par_ns
+          par_day[d,] <- unlist(kap_par)
           
           if (tolower(GoFtest)=="ks")
             p_vals[d] <- ks_test(data_window, data_kap) ### kappa distribution not rejected at alpha=0.05
@@ -691,3 +609,279 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
     return(out_list)
   # }
 }
+
+# ### run PRSim.nonstat for two example catchments:
+# sim_nonstat_all <- prsim.wave.nonstat(data, station_id="Qobs", number_sim=10, win_h_length=15, 
+#                                marginal=c("kappa"), n_par=4, n_wave=100, cov_name='T', marginalpar=TRUE, 
+#                                GoFtest=NULL, verbose=TRUE, suppWarn=FALSE)
+# ### for comparison, also run stationary PRSim
+# sim_stat_all <- prsim.wave(data, station_id="Qobs", number_sim=10, win_h_length=15, 
+#            marginal=c("kappa"), n_par=4, n_wave=100, marginalpar=TRUE, 
+#            GoFtest=NULL, verbose=TRUE, suppWarn=FALSE)
+# 
+# ###===============================###===============================###
+# ### compare non-stationary and stationary simulations
+# ###===============================###===============================###
+# dir_analysis <- "~/Projects/DFStaR/stoch_sim_non_stationary/results"
+# col_obs <- 'grey'
+# col_stat <- '#fc8d59'
+# col_nonstat <- '#d7301f'
+# sim_nonstat <- sim_nonstat_all[[l]]$simulation
+# sim_stat <- sim_stat_all[[l]]$simulation
+# 
+# setwd(dir_analysis)
+# pdf('obs_vs_simulated_ts.pdf',width=10,height=6)
+# par(mfrow=c(2,1),mar=c(4,4,2,1))
+# ### whole ts
+# plot(sim_stat$timestamp,sim_stat$Qobs,type='l',xlab='Time (d)',ylab=expression(paste("Discharge (m"^"3", "/s)")),col=col_obs)
+# lines(sim_stat$timestamp,sim_stat$r1,col=col_stat)
+# lines(sim_nonstat$timestamp,sim_nonstat$r1,col=col_nonstat)
+# legend('topright',legend=c('obs','sim stat','sim nonstat'),
+#        col=c(col_obs,col_stat,col_nonstat),lty=1,bty='n')
+# ### 3 years
+# plot(sim_stat$timestamp[1:1000],sim_stat$Qobs[1:1000],type='l',xlab='Time (d)',ylab=expression(paste("Discharge (m"^"3", "/s)")),col=col_obs)
+# lines(sim_stat$timestamp[1:1000],sim_stat$r1[1:1000],col=col_stat)
+# lines(sim_nonstat$timestamp[1:1000],sim_nonstat$r1[1:1000],col=col_nonstat)
+# dev.off()
+# 
+# ### compare distributions
+# setwd(dir_analysis)
+# pdf('obs_vs_sim_distribution.pdf',width=6,height=4)
+# par(mar=c(4,4,2,1))
+# boxplot(sim_stat$Qobs,sim_stat$r1,sim_stat$r2,sim_stat$r3,sim_stat$r4,sim_stat$r5,sim_nonstat$r1,sim_nonstat$r2,sim_nonstat$r3,sim_nonstat$r4,sim_nonstat$r5,
+#         col=c(col_obs,col_stat,col_stat,col_stat,col_stat,col_stat,col_nonstat,col_nonstat,col_nonstat, col_nonstat,col_nonstat),
+#         ylab=expression(paste("Discharge (m"^"3", "/s)")),names=c('Obs','s1','s2','s3','s4','s5','ns1','ns2','ns3','ns4','ns5'))
+# dev.off()
+# 
+# setwd(dir_analysis)
+# pdf(paste(l,'_stat_vs_nonstat_PRsim','.pdf',sep=''),width=8,height=6.5)
+# 
+# par(mfrow=c(3,3),mar=c(4,4,2,1))
+# 
+# ### extract the regimes for each year
+# ###===============================###===============================###
+# 
+# ### observations
+# year <- seq(from=min(sim_stat$YYYY,na.rm=T),to=max(sim_stat$YYYY,na.rm=T))
+# 
+# ### compute mean runoff hydrograph
+# sim_stat$day_id <- rep(seq(1:365),times=length(year))
+# mean_hydrograph_obs <- aggregate(sim_stat$Qobs,by=list(sim_stat$day_id),FUN=mean,simplify=FALSE,na.rm=T)
+# # lines(mean_hydrograph_obs,lty=1,lwd=3,col="black")
+# plot(unlist(mean_hydrograph_obs[,2]),lty=1,lwd=1,col="black",ylab=expression(bold(paste("Discharge [m"^3,"/s]"))),
+#      xlab=expression(bold("Time [d]")),main="Mean hydrographs",ylim=c(0,max(unlist(mean_hydrograph_obs[,2]))*1.25),type="l")
+# 
+# ### add mean runoff hydrographs stationary model
+# mean_hydrograph_stat <- list()
+# for(r in 5:(length(names(sim_stat))-2)){
+#   mean_hydrograph_stat[[r]] <- unlist(aggregate(sim_stat[,r],by=list(sim_stat$day_id),FUN=mean,simplify=FALSE)$x)
+#   # lines(mean_hydrograph_stat[[r]],lty=1,lwd=1,col=col_stat)
+# }
+# 
+# ### non-stationary regimes
+# sim_nonstat$day_id <- rep(seq(1:365),times=length(year))
+# mean_hydrograph_nonstat <- list()
+# for(r in 5:(length(names(sim_nonstat))-2)){
+#   mean_hydrograph_nonstat[[r]] <- unlist(aggregate(sim_nonstat[,r],by=list(sim_nonstat$day_id),FUN=mean,simplify=FALSE)$x)
+#   # lines(mean_hydrograph_nonstat[[r]],lty=1,lwd=1,col=col_nonstat)
+# }
+# 
+# ### use polygons
+# ### use polygons instead of spaghetti plots
+# ### stationary polygon
+# all_hydro_stat <- do.call(cbind,mean_hydrograph_stat)
+# ### compute quantile curves, CIs
+# q05 <- apply(all_hydro_stat,MARGIN=1,FUN=quantile,0.05,na.rm=TRUE)
+# q95 <- apply(all_hydro_stat,MARGIN=1,FUN=quantile,0.95,na.rm=TRUE)
+# 
+# y.low <- q05
+# y.high <- q95
+# lines(1:length(y.low),y.low,col=col_stat,lwd=1,lty=3)
+# lines(1:length(y.high),y.high,col=col_stat,lwd=1,lty=3)
+# polygon(c(1:length(y.low), rev(1:(length(y.low)))), c(y.high, rev(y.low)),
+#         col = adjustcolor(col_stat,0.5), border = NA)
+# 
+# ### add polygon nonstationary
+# all_hydro_nonstat <- do.call(cbind,mean_hydrograph_nonstat)
+# ### compute quantile curves, CIs
+# q05 <- apply(all_hydro_nonstat,MARGIN=1,FUN=quantile,0.05,na.rm=TRUE)
+# q95 <- apply(all_hydro_nonstat,MARGIN=1,FUN=quantile,0.95,na.rm=TRUE)
+# ### plot
+# y.low <- q05
+# y.high <- q95
+# lines(1:length(y.low),y.low,col=col_nonstat,lwd=1,lty=3)
+# lines(1:length(y.high),y.high,col=col_nonstat,lwd=1,lty=3)
+# polygon(c(1:length(y.low), rev(1:(length(y.low)))), c(y.high, rev(y.low)),
+#           col = adjustcolor(col_nonstat,0.5), border = NA)
+# ### readd observed mean
+# lines(mean_hydrograph_obs,lty=1,lwd=1,col="black")
+# 
+# 
+# # ### plot observed annual hydrographs vs. simulated annual hydrographs (one simulation run)
+# plot(sim_stat$Qobs[which(sim_stat$YYYY%in%year[1:3])],type="l",col='black',
+#      ylab=expression(bold(paste("Discharge [m"^3,"/s]"))),xlab=expression(bold("Time [d]")),
+#      main="Observed 3 years",ylim=c(0,max(unlist(mean_hydrograph_obs[,2]))*1.75))
+# 
+# ### add stationary simulations
+# for(r in 6){
+#   for(n in 1:length(year)){
+#     lines(sim_stat[which(sim_stat$YYYY%in%year[1:3]),r],col=col_stat)
+#   }
+# }
+# ### add non-stationary simulation
+# for(r in 6){
+#   for(n in 1:length(year)){
+#     lines(sim_nonstat[which(sim_nonstat$YYYY%in%year[1:3]),r],col=col_nonstat)
+#   }
+# }
+# ### autocorrelation
+# ###===============================###===============================###
+# 
+# acf_mare <- list()
+# acf_obs <- acf(sim_stat$Qobs,plot=FALSE,na.action=na.pass)
+# plot(acf_obs$acf,type="l",xlab="Lag",main="Autocorrelation",ylab=expression(bold("ACF")))
+# ### stationary
+# for(r in 6:(length(names(sim_stat))-2)){
+#   acf_sim <- acf(sim_stat[,r],plot=FALSE,na.action=na.pass)
+#   lines(acf_sim$acf,col=col_stat,type="l")
+#   ### compute mean relative error in the acf
+#   acf_mare[[r]]<- mean(abs((acf_obs$acf-acf_sim$acf)/acf_obs$acf))
+# }
+# 
+# ### nonstationary
+# for(r in 6:(length(names(sim_nonstat))-2)){
+#   acf_sim <- acf(sim_nonstat[,r],plot=FALSE,na.action=na.pass)
+#   lines(acf_sim$acf,col=col_nonstat,type="l")
+#   ### compute mean relative error in the acf
+#   acf_mare[[r]]<- mean(abs((acf_obs$acf-acf_sim$acf)/acf_obs$acf))
+# }
+# lines(acf_obs$acf)
+# ### compute mean error over all simulated time series
+# mean_error_acf <- mean(unlist(acf_mare))
+# 
+# ### partial autocorrelation function
+# pacf_obs <- pacf(sim_stat$Qobs,plot=FALSE,na.action=na.pass)
+# pacf_mare <- list()
+# plot(pacf_obs$acf,type="l",xlab="Lag",main="Partial autocorrelation",ylab=expression(bold("PACF")))
+# ### stationary
+# for(r in 6:(length(names(sim_stat))-2)){
+#   pacf_sim <- pacf(na.omit(sim_stat[,r]),plot=FALSE)
+#   lines(pacf_sim$acf,col=col_stat,type="l")
+#   ### compute mean relative error in the acf
+#   pacf_mare[[r]]<- mean(abs((pacf_obs$acf-pacf_sim$acf)/pacf_obs$acf))
+# }
+# ### nonstationary
+# for(r in 6:(length(names(sim_nonstat))-2)){
+#   pacf_sim <- pacf(na.omit(sim_nonstat[,r]),plot=FALSE)
+#   lines(pacf_sim$acf,col=col_nonstat,type="l")
+#   ### compute mean relative error in the acf
+#   pacf_mare[[r]]<- mean(abs((pacf_obs$acf-pacf_sim$acf)/pacf_obs$acf))
+# }
+# lines(pacf_obs$acf)
+# 
+# ### compute mean error over all simulated time series
+# mean_error_pacf <- mean(unlist(pacf_mare))
+# 
+# ### acfs of rising and receding limb separately
+# 
+# 
+# ### compute seasonal statistics
+# ### Q50,Q05,Q95, boxplots
+# ###===============================###===============================###
+# ### define seasons: Winter:12,1,2; spring:3,4,5; summer: 6,7,8; fall: 9,10,11
+# sim_stat$season <- NA
+# sim_stat$season[which(sim_stat$MM%in%c('12','01','02'))] <- "winter"
+# sim_stat$season[which(sim_stat$MM%in%c('03','04','05'))] <- "spring"
+# sim_stat$season[which(sim_stat$MM%in%c('06','07','08'))] <- "summer"
+# sim_stat$season[which(sim_stat$MM%in%c('09','10','11'))] <- "fall"
+# sim_nonstat$season <- NA
+# sim_nonstat$season[which(sim_nonstat$MM%in%c('12','01','02'))] <- "winter"
+# sim_nonstat$season[which(sim_nonstat$MM%in%c('03','04','05'))] <- "spring"
+# sim_nonstat$season[which(sim_nonstat$MM%in%c('06','07','08'))] <- "summer"
+# sim_nonstat$season[which(sim_nonstat$MM%in%c('09','10','11'))] <- "fall"
+# 
+# ### compute seasonal statistics
+# ### all simulated series show the same seasonal statistics. plot only one 
+# boxplot(sim_stat$Qobs[which(sim_stat$season=="winter")],sim_stat$r1[which(sim_stat$season=="winter")],sim_nonstat$r1[which(sim_nonstat$season=="winter")],
+#         sim_stat$Qobs[which(sim_stat$season=="spring")],sim_stat$r1[which(sim_stat$season=="spring")],sim_nonstat$r1[which(sim_nonstat$season=="spring")],
+#         sim_stat$Qobs[which(sim_stat$season=="summer")],sim_stat$r1[which(sim_stat$season=="summer")],sim_nonstat$r1[which(sim_nonstat$season=="summer")],
+#         sim_stat$Qobs[which(sim_stat$season=="fall")],sim_stat$r1[which(sim_stat$season=="fall")],sim_nonstat$r1[which(sim_nonstat$season=="fall")],
+#         border=c("black",col_stat,col_nonstat,"black",col_stat,col_nonstat,"black",col_stat,col_nonstat,"black",col_stat,col_nonstat),xaxt="n",main="Seasonal statistics",outline=FALSE)
+# mtext(side=1,text=c("Winter","Spring","Summer","Fall"),at=c(2,5,8,11))
+# # legend("topleft",legend=c("Observations","Simulations"),col=c("black",col_sim),pch=1)
+# 
+# 
+# ### comparison of monthly statistics
+# ### plot line of observed statistics
+# ### add boxplots of statistics across simulated time series
+# ###===============================###===============================###
+# ### function for computing monthly statistics across simulated time series
+# fun_month_stat_comp <- function(fun,name){
+#   ### compute mean monthly hydrograph for observations
+#   mean_hydrograph_obs <- aggregate(sim_stat$Qobs,by=list(sim_stat$MM),FUN=fun,simplify=FALSE,na.rm=T)
+#   plot(mean_hydrograph_obs,lty=1,lwd=1,col="black",type="l",
+#        ylab=expression(bold(paste("Discharge [m"^3,"/s]"))),xlab=expression(bold("Time [m]")),
+#        main=name,ylim=c(0,max(unlist(mean_hydrograph_obs$x))*2))
+#   
+#   ### compute mean monthly hydrograph for simulations
+#   mean_hydrograph <- list()
+#   for(r in 6:(length(names(sim_stat))-3)){
+#     mean_hydrograph[[r]] <- unlist(aggregate(sim_stat[,r],by=list(sim_stat$MM),FUN=fun,simplify=FALSE,na.rm=T)$x)
+#   }
+#   
+#   ### compute boxplots across simulations for each month
+#   monthly_values <- rep(list(rep(list(NA),times=length(mean_hydrograph))),times=12)
+#   for(i in c(1:12)){
+#     for(r in 1:length(mean_hydrograph)){
+#       monthly_values[[i]][r] <- mean_hydrograph[[r]][i]
+#     }
+#   }
+#   
+#   ### add monthly boxplots to mean observed line
+#   for(i in 1:12){
+#     boxplot(at=i-0.25,unlist(monthly_values[i]),add=T,col=col_stat,xaxt="n",yaxt="n")
+#   }
+#   
+#   ### non-stationary
+#   ### compute mean monthly hydrograph for simulations
+#   mean_hydrograph <- list()
+#   for(r in 6:(length(names(sim_stat))-3)){
+#     mean_hydrograph[[r]] <- unlist(aggregate(sim_nonstat[,r],by=list(sim_nonstat$MM),FUN=fun,simplify=FALSE,na.rm=T)$x)
+#   }
+#   
+#   ### compute boxplots across simulations for each month
+#   monthly_values <- rep(list(rep(list(NA),times=length(mean_hydrograph))),times=12)
+#   for(i in c(1:12)){
+#     for(r in 1:length(mean_hydrograph)){
+#       monthly_values[[i]][r] <- mean_hydrograph[[r]][i]
+#     }
+#   }
+#   
+#   ### add monthly boxplots to mean observed line
+#   for(i in 1:12){
+#     boxplot(at=i+0.25,unlist(monthly_values[i]),add=T,col=col_nonstat,xaxt="n",yaxt="n")
+#   }
+# }
+# 
+# ### monthly mean
+# fun_month_stat_comp(fun=mean,name="Mean")
+# ### monthly max
+# fun_month_stat_comp(fun=max,name="Maximum")
+# ### monthly minimum
+# fun_month_stat_comp(fun=min,name="Minimum")
+# ### standard deviation
+# # fun_month_stat_comp(fun=sd,name="Standard deviation")
+# 
+# # ### plot spectrum
+# # ### compare spectra of observed and simulated data
+# # spec.pgram(na.omit(sim_stat$Qobs),main='Spectrum')
+# # for(r in 6:(length(sim_stat)-2)){
+# #   spec_new <- spec.pgram(na.omit(sim_stat[,r]),plot=FALSE)
+# #   lines(spec_new$freq,spec_new$spec,col=col_stat)
+# # }
+# # ### non-stationary
+# # for(r in 6:(length(sim_nonstat)-2)){
+# #   spec_new <- spec.pgram(na.omit(sim_nonstat[,r]),plot=FALSE)
+# #   lines(spec_new$freq,spec_new$spec,col=col_nonstat)
+# # }
+# dev.off()
