@@ -2,8 +2,8 @@ Package: PRSim
 Type: Package
 Title: Stochastic Simulation of Streamflow Time Series using Phase
         Randomization
-Version: 1.4-1
-Date: 2022-03-28
+Version: 1.4-2
+Date: 2022-09-16
 Authors@R: c(person("Manuela", "Brunner", role = c("aut", "cre"),
              email = "manuela.i.brunner@gmail.com", 
              comment = c(ORCID = "0000-0001-8824-877X")),
@@ -38,10 +38,9 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.5.0)
 Suggests: lattice, ismev, evd, GB2, boot, MASS
-Imports: stats, methods, lmomco, mev, homtest, goftest, wavScalogram,
-        splus2R
+Imports: stats, methods, lmomco, mev, goftest, wavScalogram, splus2R
 RoxygenNote: 7.0.2
 NeedsCompilation: yes
-Packaged: 2022-03-28 08:00:24 UTC; Brunner
+Packaged: 2022-09-20 12:28:41 UTC; Brunner
 Repository: CRAN
-Date/Publication: 2022-03-28 09:10:02 UTC
+Date/Publication: 2022-09-20 22:50:02 UTC

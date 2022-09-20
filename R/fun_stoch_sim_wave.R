@@ -320,7 +320,7 @@ prsim.wave <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
         ### determine values in window around day i
         data_window <- data[[l]]$Qobs[which(data[[l]]$index%in%ids)]
         # par.kappa(data_monthly)
-        ll<- homtest::Lmoments(data_window)
+        ll<- Lmoments(data_window)
         
         ### test whether Kappa distribution can be fit
         if (suppWarn) {
