@@ -21,7 +21,7 @@ data(weather_multi_sites) ### loads data_p and data_t
 ###===============================###===============================###
 data_t <- sapply(weather_multi_sites,function(x) x[1])
 data_p <- sapply(weather_multi_sites,function(x) x[2])
-out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=5, p_margin='egpd',t_margin='sep')
+# out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=5, p_margin='egpd',t_margin='sep')
 ### save example simulation data
 # weather_sim_multi_sites <- out
 # setwd("~/PRSim-devel/data")
@@ -32,17 +32,17 @@ out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=5, p_margin='egpd'
 ### temperature: normal, precipitation: GEV
 ###===============================###===============================###
 ### define normal distribution
-library(fitdistrplus)
-rNORM <- function(n, theta)  rnorm(n, theta[1], theta[2])
-pNORM <- function(x, theta)  pnorm(x, theta[1], theta[2])
-NORM_fit <- function( xdat, ...)   fitdistr(xdat, 'normal', show=FALSE, ...)$estimate
-### define GEV distribution
-require("evd")
-require("ismev")
-rGEV <- function(n, theta)  rgev(n, theta[1], theta[2], theta[3])
-pGEV <- function(x, theta)  pgev(x, theta[1], theta[2], theta[3])
-GEV_fit <- function( xdat, ...)   gev.fit(xdat, show=FALSE, ...)$mle
-
-### apply function using alternative distributions
-out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=1,p_margin='GEV',t_margin='NORM')
-out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=1,p_margin='NORM',t_margin='NORM')
+# library(fitdistrplus)
+# rNORM <- function(n, theta)  rnorm(n, theta[1], theta[2])
+# pNORM <- function(x, theta)  pnorm(x, theta[1], theta[2])
+# NORM_fit <- function( xdat, ...)   fitdistr(xdat, 'normal', show=FALSE, ...)$estimate
+# ### define GEV distribution
+# require("evd")
+# require("ismev")
+# rGEV <- function(n, theta)  rgev(n, theta[1], theta[2], theta[3])
+# pGEV <- function(x, theta)  pgev(x, theta[1], theta[2], theta[3])
+# GEV_fit <- function( xdat, ...)   gev.fit(xdat, show=FALSE, ...)$mle
+# 
+# ### apply function using alternative distributions
+# out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=1,p_margin='GEV',t_margin='NORM')
+# out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=1,p_margin='NORM',t_margin='NORM')

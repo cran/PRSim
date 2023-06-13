@@ -2,17 +2,17 @@ Package: PRSim
 Type: Package
 Title: Stochastic Simulation of Streamflow Time Series using Phase
         Randomization
-Version: 1.4-2
-Date: 2022-09-16
+Version: 1.4-3
+Date: 2023-06-13
 Authors@R: c(person("Manuela", "Brunner", role = c("aut", "cre"),
-             email = "manuela.i.brunner@gmail.com", 
+             email = "manuela.brunner@env.ethz.ch", 
              comment = c(ORCID = "0000-0001-8824-877X")),
              person("Reinhard", "Furrer", role = c("aut"),  
              email = "reinhard.furrer@math.uzh.ch", 
              comment = c(ORCID = "0000-0002-6319-2332"))) 
 Author: Manuela Brunner [aut, cre] (<https://orcid.org/0000-0001-8824-877X>),
   Reinhard Furrer [aut] (<https://orcid.org/0000-0002-6319-2332>)
-Maintainer: Manuela Brunner <manuela.i.brunner@gmail.com>
+Maintainer: Manuela Brunner <manuela.brunner@env.ethz.ch>
 Description: Provides a simulation framework to simulate streamflow time series with similar
   main characteristics as observed data. These characteristics include the distribution of daily 
   streamflow values and their temporal correlation as expressed by short- and long-range 
@@ -39,8 +39,8 @@ LazyData: true
 Depends: R (>= 3.5.0)
 Suggests: lattice, ismev, evd, GB2, boot, MASS
 Imports: stats, methods, lmomco, mev, goftest, wavScalogram, splus2R
-RoxygenNote: 7.0.2
+RoxygenNote: 7.2.3
 NeedsCompilation: yes
-Packaged: 2022-09-20 12:28:41 UTC; Brunner
+Packaged: 2023-06-13 12:12:37 UTC; brunnerm
 Repository: CRAN
-Date/Publication: 2022-09-20 22:50:02 UTC
+Date/Publication: 2023-06-13 14:40:05 UTC

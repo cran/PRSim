@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2019-12-10 r77548) -- "Unsuffered Consequences"
-Copyright (C) 2019 The R Foundation for Statistical Computing
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,9 +20,6 @@ Type 'q()' to quit R.
 > 
 > require(PRSim)
 Loading required package: PRSim
-Loading required package: homtest
-Loading required package: goftest
-Loading required package: wmtsa
 > 
 > # raw demos
 > demo( "PRSim", ask=FALSE)
@@ -54,7 +51,7 @@ Loading required package: evd
 Loading required package: ismev
 Loading required package: mgcv
 Loading required package: nlme
-This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
 
 > rGEV <- function(n, theta)  rgev(n, theta[1], theta[2], theta[3])
 
@@ -86,7 +83,7 @@ Finished.
 	---- ~~~~~~~~~~~~~~
 
 > # short demo
-> data( simulations)
+> data(simulations)
 
 > sim <- simulations$simulation
 
@@ -304,13 +301,13 @@ Starting 1 simulations:
 .
 Finished.
 > set.seed(1)
-> out6b <- prsim( runo, marginal="Kappa", marginalpar=TRUE)
+> out6b <- prsim( runo, marginal="kappa", marginalpar=TRUE)
 Detrending with (half-)length 15...
 Starting 1 simulations:
 .
 Finished.
 > identical(out6a$pars, out6b$pars)   # columns are differently named...
-[1] FALSE
+[1] TRUE
 > colSums( (as.matrix(out6a$pars)-out6b$pars)^2)
   xi alfa    k    h 
    0    0    0    0 
@@ -322,13 +319,13 @@ Finished.
  Mean   :0   Mean   :0   Mean   :0                     Mean   :0  
  3rd Qu.:0   3rd Qu.:0   3rd Qu.:0                     3rd Qu.:0  
  Max.   :0   Max.   :0   Max.   :0                     Max.   :0  
- deseaonalized       r1          
- Min.   :0     Min.   :-8.52690  
- 1st Qu.:0     1st Qu.: 0.00000  
- Median :0     Median : 0.00000  
- Mean   :0     Mean   : 0.00043  
- 3rd Qu.:0     3rd Qu.: 0.00000  
- Max.   :0     Max.   : 9.88258  
+ deseaonalized       r1   
+ Min.   :0     Min.   :0  
+ 1st Qu.:0     1st Qu.:0  
+ Median :0     Median :0  
+ Mean   :0     Mean   :0  
+ 3rd Qu.:0     3rd Qu.:0  
+ Max.   :0     Max.   :0  
 > 
 > plot(out6a$simulation$r1, type='l')
 > lines.default(out6b$simulation$r1, col=3)
@@ -343,4 +340,4 @@ Finished.
 > 
 > proc.time()
    user  system elapsed 
- 25.623   0.072  25.725 
+ 10.263   0.080  10.339 

@@ -37,12 +37,12 @@ for(l in 2){
 ylim_max <- max(sim[[1]][[2]]$Prec)*1
 ### observed
 plot(sim[[1]][[2]]$Prec[1:1000],ylab=expression(bold(paste("Precipitation [mm/d]"))),xlab="Time [d]",type="l",col=col_vect_obs[1],ylim=c(0,ylim_max),main='Observations')
-for(l in 2:4){
+for(l in 2){
   lines(sim[[l]][[2]]$Prec[1:1000],col=col_vect_obs[l])
 }
 # legend('topleft',legend=c('Station 1','Station 2','Station 3','Station 4'),lty=1,col=col_vect_obs[1:4])
 ### simulated (one run)
 plot(sim[[1]][[2]]$r1[1:1000],ylab=expression(bold(paste("Precipitation [mm/d]"))),xlab="Time [d]",type="l",col=col_vect_sim[1],ylim=c(0,ylim_max),main='Stochastic simulations')
-for(l in 2:4){
+for(l in 2){
   lines(sim[[l]][[2]]$r1[1:1000],col=col_vect_sim[l])
 }
