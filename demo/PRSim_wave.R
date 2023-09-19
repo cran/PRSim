@@ -37,7 +37,7 @@ out <- prsim.wave(data=runoff_multi_sites, number_sim=1, marginal="kappa", GoFte
 sim <- out[[2]]$simulation
 
 ### plot example of simulated time series
-par(mai=c(.9,.9,.1,.1))
+# par(mai=c(.9,.9,.1,.1))
 ### observed time series
 plot(sim$timestamp[1:1000], sim$Qobs[1:1000], type="l", 
      xlab="Time [d]", ylab=expression(paste("Discharge [m"^3,"/s]")))
@@ -47,7 +47,7 @@ matlines(sim$timestamp[1:1000], sim[1:1000, grep("r", names(sim))],
 
 ### compare distributions without outliers
 ### without outliers
-boxplot(sim$Qobs,sim$r1,outline=F,col=c('black','grey'),names=c('Obs','Sim'))
+boxplot(sim$Qobs,sim$r1,outline=FALSE,col=c('black','grey'),names=c('Obs','Sim'))
 ### with outliers
 boxplot(sim$Qobs,sim$r1,col=c('black','grey'),names=c('Obs','Sim'))
 

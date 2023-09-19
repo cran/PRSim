@@ -8,7 +8,7 @@ kern <- kernel("modified.daniell",c(10,10))
 sp1 <- spec.pgram(sim$Qobs, k=kern, taper=0, log="no", plot=FALSE)
 sp2 <- spec.pgram(sim$des, k=kern, taper=0, log="no", plot=FALSE)
 plot(sp1, xlim=c(0,.05))     
-plot( sp2, add=T, col=2)
+plot( sp2, add=TRUE, col=2)
 
 # Peaks correspond to the following cycles:
 1/sp1$freq[head(order(sp1$spec, decreasing=TRUE))]
@@ -17,7 +17,7 @@ plot( sp2, add=T, col=2)
 plot(sp1, xlim=c(0,.05))     # would be nice to identify the peaks...
 for (i in grep("r",names(sim))) {
   spi <- spec.pgram(sim[,i], k=kern, taper=0, log="no", plot=FALSE)
-  plot( spi, add=T, col="gray")
+  plot( spi, add=TRUE, col="gray")
 }
 
 sp3 <- spec.pgram(sim$Qobs, taper=0, log="no", plot=FALSE)

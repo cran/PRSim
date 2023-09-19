@@ -38,14 +38,6 @@ Type 'q()' to quit R.
 > 
 > ### ** Examples
 > 
-> ## Not run: 
-> ##D demo("PRSim")
-> ##D demo("PRSim-validate")
-> ##D demo("PRSim_wave")
-> ##D demo("PRSim_wave-validate")
-> ##D demo("PRSim_weather")
-> ##D demo("PRSim_weather-validate")
-> ## End(Not run)
 > 
 > 
 > 
@@ -79,39 +71,21 @@ Loading required package: evd
 Loading required package: ismev
 Loading required package: mgcv
 Loading required package: nlme
-This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
+This is mgcv 1.9-0. For overview type 'help("mgcv-package")'.
 > rGEV <- function(n, theta)   rgev(n, theta[1], theta[2], theta[3])
 > pGEV <- function(x, theta)   pgev(x, theta[1], theta[2], theta[3])
 > GEV_fit <- function( xdat, ...)   gev.fit( xdat, ...)$mle
 >   
-> ## Not run: 
-> ##D  # The following call requires 5 seconds to execute
-> ##D out <- prsim( runoff[ runoff$YYYY<1978, ], "Qobs", 1, 
-> ##D     marginal="GEV", n_par=3, verbose=FALSE, marginalpar=FALSE,
-> ##D     show=FALSE)  # Supress 'gev.fit' output.
-> ## End(Not run)
 > 
 > ## (2) example with generalized Beta distribution of the second kind
-> require( "GB2")
-Loading required package: GB2
-> rGB2 <- function(n, theta)  rgb2(n, theta[1], theta[2], theta[3], theta[4])
-> pGB2 <- function(x, theta)  pgb2(x, theta[1], theta[2], theta[3], theta[4])
-> GB2_fit <- function( xdat, ...)   ml.gb2( xdat, ...)$opt1$par
-> 
-> ## Not run: 
-> ##D  # The following call requires half minute or so to execute. Some warnings are issued
-> ##D out <- prsim( runoff[ runoff$YYYY<1987, ], "Qobs", 1, suppWarn=TRUE,
-> ##D     marginal="GB2")
-> ##D 
-> ## End(Not run)
 > 
 > 
 > 
 > 
 > cleanEx()
 
-detaching ‘package:GB2’, ‘package:ismev’, ‘package:mgcv’,
-  ‘package:nlme’, ‘package:evd’
+detaching ‘package:ismev’, ‘package:mgcv’, ‘package:nlme’,
+  ‘package:evd’
 
 > nameEx("fun_stoch_sim_wave")
 > ### * fun_stoch_sim_wave
@@ -126,93 +100,11 @@ detaching ‘package:GB2’, ‘package:ismev’, ‘package:mgcv’,
 > ### ** Examples
 > 
 > data(runoff_multi_sites)
-> ## Not run: 
-> ##D  # The following call requires half minute or so to execute. 
-> ##D prsim.wave(runoff_multi_sites, "Qobs", 1, suppWarn=TRUE)
-> ## End(Not run)
-> # warnings() # as a follow-up to `suppWarn=TRUE`
 > 
 > ## Specifying particular CDFs:
 > ## (1) example with the Generalized Extreme Value (GEV) distribution
-> require("evd")
-Loading required package: evd
-> require("ismev")
-Loading required package: ismev
-Loading required package: mgcv
-Loading required package: nlme
-This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
-> rGEV <- function(n, theta)   rgev(n, theta[1], theta[2], theta[3])
-> pGEV <- function(x, theta)   pgev(x, theta[1], theta[2], theta[3])
-> GEV_fit <- function( xdat, ...)   gev.fit( xdat, ...)$mle
->   
-> ## Not run: 
-> ##D  # The following call requires 5 seconds to execute
-> ##D prsim.wave(runoff_multi_sites, "Qobs", 1, 
-> ##D     marginal="GEV", n_par=3, verbose=FALSE, marginalpar=FALSE,
-> ##D     show=FALSE)
-> ##D     # Supress 'gev.fit' output.
-> ## End(Not run)
 > 
 > ## (2) example with generalized Beta distribution of the second kind
-> require( "GB2")
-Loading required package: GB2
-> rGB2 <- function(n, theta)  rgb2(n, theta[1], theta[2], theta[3], theta[4])
-> pGB2 <- function(x, theta)  pgb2(x, theta[1], theta[2], theta[3], theta[4])
-> GB2_fit <- function( xdat, ...)   ml.gb2( xdat, ...)$opt1$par
-> 
-> ## Not run: 
-> ##D  # The following call requires half minute or so to execute. 
-> ##D Some warnings are issued
-> ##D prsim.wave(runoff_multi_sites, "Qobs", 1, suppWarn=TRUE,
-> ##D     marginal="GB2")
-> ##D 
-> ## End(Not run)
-> 
-> 
-> 
-> 
-> cleanEx()
-
-detaching ‘package:GB2’, ‘package:ismev’, ‘package:mgcv’,
-  ‘package:nlme’, ‘package:evd’
-
-> nameEx("fun_stoch_sim_weather")
-> ### * fun_stoch_sim_weather
-> 
-> flush(stderr()); flush(stdout())
-> 
-> ### Name: pRsim.weather
-> ### Title: Weather simulation (temperature and precipitation) for multiple
-> ###   stations
-> ### Aliases: PRsim.weather prsim.weather prsim_weather
-> ### Keywords: ts
-> 
-> ### ** Examples
-> 
-> data(weather_multi_sites)
-> ## Not run: 
-> ##D  # The following call requires half minute or so to execute. 
-> ##D prsim.weather(data_p=data_p, data_t=data_t, number_sim=1, p_margin='egpd',t_margin='sep')
-> ## End(Not run)
-> 
-> 
-> ## Not run: 
-> ##D  # The following call requires 5 seconds to execute
-> ##D ### define normal distribution
-> ##D library(fitdistrplus)
-> ##D rNORM <- function(n, theta)  rnorm(n, theta[1], theta[2])
-> ##D pNORM <- function(x, theta)  pnorm(x, theta[1], theta[2])
-> ##D NORM_fit <- function( xdat, ...)   fitdistr( xdat, 'normal', show=FALSE, ...)$estimate
-> ##D ### define GEV distribution
-> ##D require("evd")
-> ##D require("ismev")
-> ##D rGEV <- function(n, theta)  rgev(n, theta[1], theta[2], theta[3])
-> ##D pGEV <- function(x, theta)  pgev(x, theta[1], theta[2], theta[3])
-> ##D GEV_fit <- function( xdat, ...)   gev.fit(xdat, show=FALSE, ...)$mle
-> ##D 
-> ##D ### apply function using alternative distributions
-> ##D out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=1,p_margin='GEV',t_margin='NORM')
-> ## End(Not run)
 > 
 > 
 > 
@@ -373,6 +265,7 @@ List of 4
 > 
 > ### ** Examples
 > 
+> oldpar <- par(mfrow = c(2, 1), mar = c(3, 3, 2, 1))
 > ### greys
 > col_vect_obs <- c('#cccccc','#969696','#636363','#252525')
 > ### oranges
@@ -406,6 +299,7 @@ List of 4
 > for(l in 2:4){
 +   lines(sim[[l]]$r1[1:1000],col=col_vect_sim[l])
 + }
+> par(oldpar)
 > 
 > 
 > 
@@ -449,6 +343,7 @@ List of 4
 > 
 > ### ** Examples
 > 
+> oldpar <- par(mfrow = c(2, 1), mar = c(3, 3, 2, 1))
 > data(weather_sim_multi_sites)
 > sim <- weather_sim_multi_sites
 > ### define plotting colors
@@ -506,6 +401,7 @@ List of 4
 > for(l in 2){
 +   lines(sim[[l]][[2]]$r1[1:1000],col=col_vect_sim[l])
 + }
+> par(oldpar)
 > 
 > 
 > 
@@ -515,7 +411,7 @@ List of 4
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  1.858 0.056 1.922 0 0 
+Time elapsed:  1.757 0.048 1.815 0 0 
 > grDevices::dev.off()
 null device 
           1 

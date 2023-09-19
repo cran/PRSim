@@ -36,6 +36,7 @@ The data has been generated with
 Brunner, M. I., A. Bárdossy, and R. Furrer (2019). Technical note: Stochastic simulation of streamflow time series using phase randomization. Hydrology and Earth System Sciences, 23, 3175-3187, https://doi.org/10.5194/hess-23-3175-2019.
 }
 \examples{
+oldpar <- par(mfrow = c(2, 1), mar = c(3, 3, 2, 1))
 ### greys
 col_vect_obs <- c('#cccccc','#969696','#636363','#252525')
 ### oranges
@@ -68,5 +69,6 @@ plot(sim[[1]]$r1[1:1000],
 for(l in 2:4){
   lines(sim[[l]]$r1[1:1000],col=col_vect_sim[l])
 }
+par(oldpar)
 }
 \keyword{datasets}

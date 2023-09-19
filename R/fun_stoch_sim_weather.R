@@ -134,7 +134,7 @@ prsim.weather <- function(data_p, data_t, station_id_p="Precip",station_id_t="Te
   ### generate random sample of indices for each simulation run
   ### use same phases for all variables and stations
   
-  set.seed(10)
+  # set.seed(10)
   noise_mat_r <- list()
   for (r in 1:number_sim){
     ### first, randomly sample a station from which to sample years

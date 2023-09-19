@@ -51,7 +51,7 @@ Loading required package: evd
 Loading required package: ismev
 Loading required package: mgcv
 Loading required package: nlme
-This is mgcv 1.8-39. For overview type 'help("mgcv-package")'.
+This is mgcv 1.9-0. For overview type 'help("mgcv-package")'.
 
 > rGEV <- function(n, theta)  rgev(n, theta[1], theta[2], theta[3])
 
@@ -69,8 +69,7 @@ Finished.
 > sim <- out$simulation
 
 > # p_val <- out$p_val
-> par(mai=c(.9,.9,.1,.1))
-
+> # par(mai=c(.9,.9,.1,.1))
 > plot(sim$timestamp[1:1000], sim$Qobs[1:1000], type="l", 
 +      xlab="Time [d]", ylab=expression(paste("Discharge [m"^3,"/s]")))
 
@@ -96,7 +95,7 @@ Finished.
 
 > plot(sp1, xlim=c(0,.05))     
 
-> plot( sp2, add=T, col=2)
+> plot( sp2, add=TRUE, col=2)
 
 > # Peaks correspond to the following cycles:
 > 1/sp1$freq[head(order(sp1$spec, decreasing=TRUE))]
@@ -107,7 +106,7 @@ Finished.
 
 > for (i in grep("r",names(sim))) {
 +   spi <- spec.pgram(sim[,i], k=kern, taper=0, log="no", plot=FALSE)
-+   plot( spi, add=T, col="gray")
++   plot( spi, add=TRUE, col="gray")
 + }
 
 > sp3 <- spec.pgram(sim$Qobs, taper=0, log="no", plot=FALSE)
@@ -340,4 +339,4 @@ Finished.
 > 
 > proc.time()
    user  system elapsed 
- 10.263   0.080  10.339 
+ 10.817   0.064  10.876 

@@ -113,7 +113,7 @@ prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_leng
 
   ### (1) Generation of white noise for random phases generation
   ### generate random sample of indices for each simulation run
-  set.seed(10)
+  # set.seed(10)
   noise_mat_r <- list()
   for (r in 1:number_sim){
     ts_wn <- rnorm(n=length(data[[1]]$Qobs), mean = 0, sd = 1) ### iid time seris

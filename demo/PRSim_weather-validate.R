@@ -17,7 +17,7 @@ col_vect_sim <- c('#fdbe85','#fd8d3c','#e6550d','#a63603')
 ### plot time series for multiple sites
 
 ### Temperature (first list entry)
-par(mfrow=c(2,1),mar=c(3,3,2,1))
+oldpar <- par(mfrow = c(2, 1), mar = c(3, 3, 2, 1))
 ### determine ylim
 ylim_max <- max(sim[[1]][[1]]$Temp)*1.5
 ### observed
@@ -46,3 +46,4 @@ plot(sim[[1]][[2]]$r1[1:1000],ylab=expression(bold(paste("Precipitation [mm/d]")
 for(l in 2){
   lines(sim[[l]][[2]]$r1[1:1000],col=col_vect_sim[l])
 }
+par(oldpar)

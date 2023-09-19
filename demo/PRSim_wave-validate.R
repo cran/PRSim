@@ -15,7 +15,7 @@ sim <- simulations_multi_sites
 
 # setwd("~/PRSim-devel/data")
 # save(simulations_multi_sites,file='simulations_multi_sites.rda')
-
+oldpar <- par(mfrow = c(2, 1), mar = c(3, 3, 2, 1))
 ### define plotting colors
 col_sim <- adjustcolor("#fd8d3c",alpha=0.8)
 col_sim_tran <- adjustcolor("#fd8d3c",alpha=0.2)
@@ -65,4 +65,4 @@ for(j in 1:4){
     lines(ccf_obs$lag,ccf_obs$acf,col="black",lwd=2)
   }
 }
-
+par(oldpar)

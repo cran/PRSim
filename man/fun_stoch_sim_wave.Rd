@@ -56,38 +56,23 @@ Manuela Brunner
 }
 \examples{
 data(runoff_multi_sites)
-\dontrun{ # The following call requires half minute or so to execute. 
-prsim.wave(runoff_multi_sites, "Qobs", 1, suppWarn=TRUE)
-}
-# warnings() # as a follow-up to `suppWarn=TRUE`
 
 ## Specifying particular CDFs:
 ## (1) example with the Generalized Extreme Value (GEV) distribution
+\donttest{
 require("evd")
 require("ismev")
 rGEV <- function(n, theta)   rgev(n, theta[1], theta[2], theta[3])
 pGEV <- function(x, theta)   pgev(x, theta[1], theta[2], theta[3])
 GEV_fit <- function( xdat, ...)   gev.fit( xdat, ...)$mle
-  
-\dontrun{ # The following call requires 5 seconds to execute
-prsim.wave(runoff_multi_sites, "Qobs", 1, 
-    marginal="GEV", n_par=3, verbose=FALSE, marginalpar=FALSE,
-    show=FALSE)
-    # Supress 'gev.fit' output.
 }
 
 ## (2) example with generalized Beta distribution of the second kind
-\dontrun{
+\donttest{
 require( "GB2")
 rGB2 <- function(n, theta)  rgb2(n, theta[1], theta[2], theta[3], theta[4])
 pGB2 <- function(x, theta)  pgb2(x, theta[1], theta[2], theta[3], theta[4])
 GB2_fit <- function( xdat, ...)   ml.gb2( xdat, ...)$opt1$par
-}
-
-\dontrun{ # The following call requires half minute or so to execute. 
-Some warnings are issued
-prsim.wave(runoff_multi_sites, "Qobs", 1, suppWarn=TRUE,
-    marginal="GB2")
 }
 
 }

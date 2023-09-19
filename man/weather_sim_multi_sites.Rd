@@ -35,6 +35,7 @@ The data has been generated with
 Brunner, M. I., and E. Gilleland (2021). Spatial compound hot-dry events in the United States: assessment using a multi-site multi-variable weather generator, in preparation.
 }
 \examples{
+oldpar <- par(mfrow = c(2, 1), mar = c(3, 3, 2, 1))
 data(weather_sim_multi_sites)
 sim <- weather_sim_multi_sites
 ### define plotting colors
@@ -92,5 +93,6 @@ ylim=c(0,ylim_max),main='Stochastic simulations')
 for(l in 2){
   lines(sim[[l]][[2]]$r1[1:1000],col=col_vect_sim[l])
 }
+par(oldpar)
 }
 \keyword{datasets}

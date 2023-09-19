@@ -43,29 +43,4 @@ Brunner, M. I., and E. Gilleland (2021). Spatial compound hot-dry events in the 
 Manuela Brunner
 }
 
-\examples{
-data(weather_multi_sites)
-\dontrun{ # The following call requires half minute or so to execute. 
-prsim.weather(data_p=data_p, data_t=data_t, number_sim=1, p_margin='egpd',t_margin='sep')
-}
-
-
-\dontrun{ # The following call requires 5 seconds to execute
-### define normal distribution
-library(fitdistrplus)
-rNORM <- function(n, theta)  rnorm(n, theta[1], theta[2])
-pNORM <- function(x, theta)  pnorm(x, theta[1], theta[2])
-NORM_fit <- function( xdat, ...)   fitdistr( xdat, 'normal', show=FALSE, ...)$estimate
-### define GEV distribution
-require("evd")
-require("ismev")
-rGEV <- function(n, theta)  rgev(n, theta[1], theta[2], theta[3])
-pGEV <- function(x, theta)  pgev(x, theta[1], theta[2], theta[3])
-GEV_fit <- function( xdat, ...)   gev.fit(xdat, show=FALSE, ...)$mle
-
-### apply function using alternative distributions
-out <- prsim.weather(data_p=data_p, data_t=data_t, number_sim=1,p_margin='GEV',t_margin='NORM')
-}
-
-}
 \keyword{ts}

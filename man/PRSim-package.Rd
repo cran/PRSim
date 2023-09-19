@@ -36,7 +36,7 @@ Brunner, M. I., and E. Gilleland (2021). Spatial compound hot-dry events in the 
 }
 \keyword{ package }
 \examples{
-\dontrun{
+\donttest{
 demo("PRSim")
 demo("PRSim-validate")
 demo("PRSim_wave")
