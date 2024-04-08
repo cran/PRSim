@@ -1,7 +1,8 @@
-# load("~/PRSim-devel/data/runoff_multi_sites_nonstat.rda")
 # data<- runoff_multi_site_T
 # library('PRSim')
-#
+# library(wavScalogram)
+# library(splus2R)
+# library(Lmoments) 
 # station_id="Qobs"
 # number_sim=1
 # win_h_length=15
@@ -16,7 +17,7 @@
 
 prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_length=15,
                   marginal=c("kappa","empirical"), n_par=4, n_wave=100, cov_name='T', marginalpar=TRUE,
-                  GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, ...){
+                  GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, warming_level, ...){
 
   ### function for backtransformation of continuous wavelet transform
   ### inverse wavelet transform
@@ -171,10 +172,10 @@ prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_leng
           ### using temperature as a covariate
           ###===============================###===============================###
           ### simplest case: linear model (maybe go for more sophisticated option later on)
-          plot(data_window$timestamp,data_window$Qobs,type='h',ylab='Discharge (m3/s)',xlab='Date (day)',main=paste('Day =',d,sep=''))
+          # plot(data_window$timestamp,data_window$Qobs,type='h',ylab='Discharge (m3/s)',xlab='Date (day)',main=paste('Day =',d,sep=''))
           lm_T <- lm(Qobs~T,data=data_window)
           Q_pred <- predict(lm_T,data_window)
-          lines(data_window$timestamp,Q_pred,col='grey')
+          # lines(data_window$timestamp,Q_pred,col='grey')
           ### use some sort of mean temperature as covariate, e.g. annual mean temperature
           ### I want to predict overall Q trend not daily variations
           # # annual_mean <- aggregate(data_window,by=list(format(data_window$Date,format='%Y')), FUN='mean')
@@ -201,7 +202,7 @@ prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_leng
 
           ### compute residuals: obs-pred
           residuals <- data_window$Q-Q_pred
-          plot(residuals,type='l')
+          # plot(residuals,type='l')
           # hist(residuals)
 
           ### Step 2: fit kappa model to residuals, set mean to 0, because already removed
@@ -245,7 +246,7 @@ prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_leng
           ###===============================###===============================###
           ### predict mu using regression model from Step 1.
           ### 1.5? warmer world
-          data_new <- data.frame('T'=c(mean(data_window$T)+1.5))
+          data_new <- data.frame('T'=c(mean(data_window$T)+warming_level[l]))
           ### predict mu
           pred_Q_new <- predict(lm_T,newdata=data_new)
           ### use this predicted mu in kappa distribution
@@ -258,8 +259,8 @@ prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_leng
           ### set negative values to 0
           data_kap[which(data_kap<0)] <- 0
           ### QQ-plot
-          plot(sort(data_window$Q),sort(data_kap),xlab='Observed discharge',ylab='Discharge simulated with non-stat Kappa')
-          abline(0,1)
+          # plot(sort(data_window$Q),sort(data_kap),xlab='Observed discharge',ylab='Discharge simulated with non-stat Kappa')
+          # abline(0,1)
 
           ### store parameters of the non-stationary kappa distribution
           kap_par <- kap_par_ns
@@ -610,10 +611,10 @@ prsim.wave.nonstat <- function(data, station_id="Qobs", number_sim=1, win_h_leng
   # }
 }
 
-# ### run PRSim.nonstat for two example catchments:
+# # ### run PRSim.nonstat for two example catchments:
 # sim_nonstat_all <- prsim.wave.nonstat(data, station_id="Qobs", number_sim=10, win_h_length=15,
 #                                marginal=c("kappa"), n_par=4, n_wave=100, cov_name='T', marginalpar=TRUE,
-#                                GoFtest=NULL, verbose=TRUE, suppWarn=FALSE)
+#                                GoFtest=NULL, verbose=TRUE, suppWarn=FALSE, warming_level=c(2,2))
 # ### for comparison, also run stationary PRSim
 # sim_stat_all <- prsim.wave(data, station_id="Qobs", number_sim=10, win_h_length=15,
 #            marginal=c("kappa"), n_par=4, n_wave=100, marginalpar=TRUE,
